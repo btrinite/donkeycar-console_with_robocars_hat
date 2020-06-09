@@ -26,30 +26,7 @@ python manage.py runserver 0.0.0.0:8000
 6. Add the app as systemd service
 
 ```
-sudo vi /etc/systemd/system/gunicorn.service
-```
-
-```
-[Unit]
-Description = DKConsole v2
-After = network.target
-
-[Service]
-PermissionsStartOnly = true
-PIDFile = /run/dkconsole/dkconsole.pid
-User = pi
-Group = pi
-WorkingDirectory = /home/pi/donkeycar-console-v2
-ExecStartPre = /bin/mkdir /run/dkconsole
-ExecStartPre = /bin/chown -R  pi:pi /run/dkconsole
-ExecStart = /home/pi/donkeycar-console-v2/dc2env/bin/gunicorn dkconsole.wsgi -b 0.0.0.0:8000 --pid /run/dkconsole/dkconsole.pid
-ExecReload = /bin/kill -s HUP $MAINPID
-ExecStop = /bin/kill -s TERM $MAINPID
-ExecStopPost = /bin/rm -rf /run/dkconsole
-PrivateTmp = true
-
-[Install]
-WantedBy = multi-user.target
+sudo ln -s gunicorn.service /etc/systemd/system/gunicorn.service
 ```
 
 ## Developer Guide

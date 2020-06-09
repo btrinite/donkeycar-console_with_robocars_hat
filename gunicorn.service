@@ -3,12 +3,12 @@ Description = DKConsole v2
 After = network.target
 
 [Service]
-EnvironmentFile= /home/pi/donkeycar-console-v2/gunicorn.env
+EnvironmentFile= /opt/donkeycar-console/gunicorn.env
 PermissionsStartOnly = true
 PIDFile = /run/dkconsole/dkconsole.pid
 User = pi
 Group = pi
-WorkingDirectory = /home/pi/donkeycar-console-v2
+WorkingDirectory = /opt/donkeycar-console
 ExecStartPre = /bin/mkdir /run/dkconsole
 ExecStartPre = /bin/chown -R pi:pi /run/dkconsole
 ExecStart = /home/pi/donkeycar-console-v2/dc2env/bin/gunicorn dkconsole.wsgi -b 0.0.0.0:8000 --pid /run/dkconsole/dkconsole.pid -c gunicorn.config.py
