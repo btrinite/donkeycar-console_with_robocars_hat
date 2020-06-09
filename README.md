@@ -8,7 +8,7 @@
 
 3. Create a new virtutal environment
 ```
-python3 -m virtualenv -p python3 dc2env --system-site-packages
+python3 -m virtualenv -p python3 env_dc --system-site-packages
 ```
 
 4. Install dependencies
