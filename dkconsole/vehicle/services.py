@@ -238,19 +238,20 @@ class Vehicle(object):
         except Exception as e:
             print(e)
 
-    @classmethod
-    def reset_network(cls, wipe):
-        try:
-            if (wipe is True):
-                subprocess.check_output(
-                    ['sudo', 'cp', '/home/pi/donkeycar-images/resources/wpa_supplicant.empty.conf', '/boot/wpa_supplicant.conf'])
-                subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
-            else:
-                subprocess.check_output(
-                    ['sudo', 'cp', '/home/pi/donkeycar-images/resources/wpa_supplicant.test.conf', '/boot/wpa_supplicant.conf'])
-                subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
-        except Exception as e:
-            print(e)
+    # TODO: Deprecated, to be deleted
+    # @classmethod
+    # def reset_network(cls, wipe):
+    #     try:
+    #         if (wipe is True):
+    #             subprocess.check_output(
+    #                 ['sudo', 'cp', '/home/pi/donkeycar-images/resources/wpa_supplicant.empty.conf', '/boot/wpa_supplicant.conf'])
+    #             subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
+    #         else:
+    #             subprocess.check_output(
+    #                 ['sudo', 'cp', '/home/pi/donkeycar-images/resources/wpa_supplicant.test.conf', '/boot/wpa_supplicant.conf'])
+    #             subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
+    #     except Exception as e:
+    #         print(e)
 
     @classmethod
     def list_network(cls):
@@ -284,7 +285,7 @@ class Vehicle(object):
     def remove_all_network(cls):
         subprocess.check_output(['wpa_cli', 'remove_network', 'all'])
         subprocess.check_output(['wpa_cli', 'save_config'])
-        subprocess.check_output(['wpa_cli', 'reconfigure'])
+        subprocess.check_output(['wpa_cli', 'reconfigure', '-i', 'wlan0'])
 
         subprocess.Popen(['sudo /etc/raspap/hostapd/servicestart.sh --interface uap0 --seconds 3'], shell=True)
 

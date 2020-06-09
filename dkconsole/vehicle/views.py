@@ -86,9 +86,8 @@ def add_network(request):
 
 @api_view(['POST'])
 def reset_network(request):
-    wipe = request.data['wipe']
     try:
-        Vehicle.reset_network(wipe)
+        Vehicle.remove_all_network()
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})

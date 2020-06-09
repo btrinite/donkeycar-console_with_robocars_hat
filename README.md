@@ -8,7 +8,8 @@
 
 3. Create a new virtutal environment
 ```
-python3 -m virtualenv -p python3 env_dc --system-site-packages
+python3 -m virtualenv -p python3 ~/env_dc --system-site-packages
+source ~/env_dc/bin/activate
 ```
 
 4. Install dependencies
@@ -20,6 +21,7 @@ pip install -r requirements/production.txt
 5. Test the installation by running the server directly
 
 ```
+python manage.py migrate
 python manage.py runserver 0.0.0.0:8000
 ```
 
