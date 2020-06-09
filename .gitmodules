@@ -1,0 +1,3 @@
+[submodule "dkconsole/test_data"]
+	path = dkconsole/test_data
+	url = https://github.com/sctse999/donkeycar-console-test-data.git
