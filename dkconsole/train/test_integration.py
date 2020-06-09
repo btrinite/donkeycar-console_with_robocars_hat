@@ -65,26 +65,6 @@ class TestTrainIntegration(TestCase):
 
         # assert ec2 instance shutdown
 
-    @pytest.mark.slow
-    def test_is_training_completed(self):
-
-        job = Job()
-        job.s3_bucket_name = TrainService.S3_BUCKET_NAME
-        job.s3_key = uuid.uuid4()
-
-        s3_client = TrainService.get_s3_client()
-        local_path = (f"{os.path.dirname(__file__)}/test_data/dummy_model.h5")
-        s3_client.upload_file(local_path, job.s3_bucket_name, f"{job.s3_key}/model.h5")
-
-        assert TrainService.is_training_completed(job) is True
-
-        s3_client.delete_object(Bucket=job.s3_bucket_name, Key=f"{job.s3_key}/model.h5")
-
-        assert TrainService.is_training_completed(job) is False
-
-        # cleanup
-        s3_client.delete_object(Bucket=job.s3_bucket_name, Key=f"{job.s3_key}")
-
 
     @pytest.mark.slow
     def test_get_latest_job_status_from_hq(self):

@@ -22,7 +22,6 @@ from rest_framework import status
 
 class TrainService():
     refresh_lock = False
-    S3_BUCKET_NAME = settings.S3_BUCKET_NAME
     MODEL_DIR = settings.MODEL_DIR
     REFRESH_JOB_STATUS_URL = "https://hq.robocarstore.com/train/refresh_job_statuses"
     SUBMIT_JOB_URL = 'https://hq.robocarstore.com/train/submit_job'
@@ -41,7 +40,6 @@ class TrainService():
     def create_job(cls, tub_paths):
         tub_paths_str = ",".join(tub_paths)
         job = Job(tub_paths=tub_paths_str)
-        job.s3_bucket_name = cls.S3_BUCKET_NAME
         job.status = JobStatus.SCHEDULED
         job.save()
 

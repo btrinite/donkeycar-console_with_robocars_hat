@@ -26,14 +26,6 @@ if os.uname()[4] == 'armv7l':
 else:
     env.read_env(str(ROOT_DIR / ".env_pc"))
 
-if False:
-    env.read_env(str(ROOT_DIR / ".env_secret"))
-    AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
-    INSTANCE_TYPE=env.str("INSTANCE_TYPE")
-else:
-    AWS_SECRET_ACCESS_KEY = None
-    INSTANCE_TYPE = None
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -155,5 +147,3 @@ CONSOLE_DIR = env.str("CONSOLE_DIR")
 VENV_PATH = env.str("VENV_PATH")
 WLAN = env.str("WLAN")
 HOTSPOT_IF_NAME = env.str("HOTSPOT_IF_NAME")
-
-S3_BUCKET_NAME=env.str("S3_BUCKET_NAME")
