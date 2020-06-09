@@ -199,3 +199,11 @@ def stop_calibrate(request):
         print(e)
         from rest_framework import status
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+def reset_config(request):
+    try:
+        Vehicle.reset_config()
+        return Response({"status": "success"})
+    except Exception as e:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

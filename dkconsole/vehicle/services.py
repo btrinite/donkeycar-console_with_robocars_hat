@@ -469,3 +469,8 @@ class Vehicle(object):
                 item = data[first_level_key][key]
                 result[key] = item
         return result
+
+    @classmethod
+    def reset_config(cls):
+        path = cls.carapp_path + "/myconfig.py"
+        open(path, 'w').close()

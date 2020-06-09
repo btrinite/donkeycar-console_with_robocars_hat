@@ -11,6 +11,7 @@ from unittest.mock import patch, ANY
 from django.test import TestCase
 import time
 import datetime
+import os
 
 
 class MockProc():
@@ -224,15 +225,24 @@ class TestVehicleUnit(TestCase):
         config_data = {"DRIVE_TRAIN_TYPE": "MM1", "STEERING_LEFT_PWM": 450}
         path = Vehicle.carapp_path + "/myconfig copy.py"
         Vehicle.edit_file(path, config_data)
+        with open(path, 'r') as f:
+            check = re.search('DRIVE_TRAIN_TYPE = "MM1"', f.read())
+            assert check.group() == 'DRIVE_TRAIN_TYPE = "MM1"'
+            f.seek(0)
+            check = re.search('STEERING_LEFT_PWM = 450', f.read())
+            assert check.group() == 'STEERING_LEFT_PWM = 450'
 
     def test_update_env(self):
         config_data = {"CARAPP_PATH": "/home/pi/mycar_mm1"}
         path = settings.CONSOLE_DIR + "/.env_pi4"
         Vehicle.edit_env(path, config_data)
+        with open(path, 'r') as f:
+            check = re.search('CARAPP_PATH=/home/pi/mycar_mm1', f.read())
+            assert check.group() == 'CARAPP_PATH=/home/pi/mycar_mm1'
 
     def test_flatten_config_map(self):
         result = Vehicle.flatten_config_map()
-        assert result['STEERING_LEFT_PWM']['dtype'] == "str" or "mc"
+        assert result['STEERING_LEFT_PWM']['dtype'] == "str" or result['STEERING_LEFT_PWM']['dtype'] == "mc"
 
 
     def test_scan_network(self):
@@ -257,3 +267,8 @@ class TestVehicleUnit(TestCase):
             with patch('subprocess.check_output') as mock_method:
                 Vehicle.remove_network("robocar")
                 assert mock_method.call_count == 2
+
+    def test_reset_config(self):
+        Vehicle.reset_config()
+        path = Vehicle.carapp_path + "/myconfig copy.py"
+        assert os.stat(path).st_size == 0

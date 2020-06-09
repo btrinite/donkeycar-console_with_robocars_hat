@@ -23,6 +23,7 @@ urlpatterns = [
     path('update_env', views.update_env, name='update_env'),
     path('start_calibrate', views.start_calibrate, name='start_calibrate'),
     path('stop_calibrate', views.stop_calibrate, name='stop_calibrate'),
+    path('reset_config', views.reset_config, name='reset_config'),
 
 
 ]
