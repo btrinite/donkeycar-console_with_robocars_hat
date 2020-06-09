@@ -1,0 +1,23 @@
+
+
+# Django
+# ------------------------------------------------------------------------------
+django==3.0.4  # pyup: < 3.1  # https://www.djangoproject.com/
+django-environ==0.4.5  # https://github.com/joke2k/django-environ
+
+# Django REST Framework
+djangorestframework==3.11.0  # https://github.com/encode/django-rest-framework
+
+
+# Network util
+netifaces==0.10.9
+
+# AWS client
+boto3==1.12.35
+
+pytest==5.4.1
+pytest-django==3.8.0
+
+# For sending request to HQ
+requests==2.23.0
+requests-toolbelt==0.9.1
