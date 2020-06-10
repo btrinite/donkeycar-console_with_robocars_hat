@@ -108,7 +108,7 @@ class Vehicle(object):
             cls.stop_driving()
 
         if MLModelService.model_exists(model_path):
-            command = cls.build_command(use_joystick, model_path, tub_meta)
+            command = cls.build_drive_command(use_joystick, model_path, tub_meta)
 
             cls.proc = subprocess.Popen(command)
             return cls.proc.pid

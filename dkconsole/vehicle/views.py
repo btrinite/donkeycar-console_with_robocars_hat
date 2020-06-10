@@ -7,11 +7,19 @@ from .services import Vehicle
 
 from django.conf import settings
 from rest_framework import status
+import time
 
 
 # Create your views here.
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
+
+
+@api_view(['GET'])
+def block(request):
+    # This function does nothing but block the thread. For testing gunicorn worker setting
+    time.sleep(1)
+    return Response({"status": "blocked 1 seconds"})
 
 
 @api_view(['POST'])
