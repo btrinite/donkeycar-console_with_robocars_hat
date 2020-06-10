@@ -473,8 +473,9 @@ class Vehicle(object):
 
     @classmethod
     def reset_config(cls):
-        path = cls.carapp_path + "/myconfig.py"
-        open(path, 'w').close()
+        subprocess.check_output(
+                    ['sudo', 'cp', '/opt/donkeycar-images/resources/myconfig.py', f'{cls.carapp_path}/myconfig.py'])
+        return True
 
     @classmethod
     def power_off(cls):
