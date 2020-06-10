@@ -234,6 +234,7 @@ class Vehicle(object):
                     return True
                 else:
                     print(f"current ssid = {current_ssid}")
+            cls.remove_network(ssid)
             return False
         except Exception as e:
             print(e)
@@ -335,19 +336,19 @@ class Vehicle(object):
 
     @classmethod
     def first_time_finish(cls, hostname, ssid, psk, controller):
+        if controller is not None:
+            cls.update_myconfig(controller)
+            cls.reboot_required = False
+
         if ssid is not None:
             wifi = cls.add_network(ssid, psk)
             if wifi is not True:
                 raise Exception("Cannot connect to wifi")
-            cls.reboot_required = True
+            cls.reboot_required = False
 
         if hostname is not None:
             cls.set_hostname(hostname, None)
             cls.reboot_required = True
-
-        if controller is not None:
-            cls.update_myconfig(controller)
-            cls.reboot_required = False
 
         cls.write_setup_file_to_disk()
 
