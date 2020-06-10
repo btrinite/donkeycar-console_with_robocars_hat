@@ -207,3 +207,8 @@ def reset_config(request):
         return Response({"status": "success"})
     except Exception as e:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+def power_off(request):
+    Vehicle.power_off()
+
