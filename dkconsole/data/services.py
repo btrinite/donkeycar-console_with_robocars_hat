@@ -82,13 +82,14 @@ class TubService():
         return len([f for f in os.listdir(tub_path) if f.endswith('.jpg')])
 
     @classmethod
-    def generate_tub_archive(cls, tub_paths):
+    def generate_tub_archive(cls, tub_name):
         print("generating tub archive")
+        tub_paths = [Path(settings.DATA_DIR) / tub_name]
         f = tempfile.NamedTemporaryFile(mode='w+b', suffix='.tar.gz', delete=False)
 
         with tarfile.open(fileobj=f, mode='w:gz') as tar:
             for tub_path in tub_paths:
-                p = Path(tub_path)
+                p = tub_path
                 tar.add(p, arcname=p.name)
 
         f.close()
