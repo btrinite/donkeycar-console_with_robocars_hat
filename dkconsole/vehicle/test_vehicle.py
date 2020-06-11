@@ -222,15 +222,19 @@ class TestVehicleUnit(TestCase):
         assert output[1] == "127.0.1.1 testing123"
 
     def test_edit_config_file(self):
-        config_data = {"DRIVE_TRAIN_TYPE": "MM1", "STEERING_LEFT_PWM": 450}
+        config_data = {"DRIVE_TRAIN_TYPE": "MM1", "STEERING_RIGHT_PWM": 400}
+        # config_data = {"STEERING_RIGHT_PWM": 600}
         path = Vehicle.carapp_path + "/myconfig copy.py"
-        Vehicle.edit_file(path, config_data)
         with open(path, 'r') as f:
-            check = re.search('DRIVE_TRAIN_TYPE = "MM1"', f.read())
-            assert check.group() == 'DRIVE_TRAIN_TYPE = "MM1"'
-            f.seek(0)
-            check = re.search('STEERING_LEFT_PWM = 450', f.read())
-            assert check.group() == 'STEERING_LEFT_PWM = 450'
+            lines = f.readlines()
+            for key in config_data:
+                Vehicle.edit_file(lines, key)
+        # # with open(path, 'r') as f:
+        #     check = re.search('DRIVE_TRAIN_TYPE = "MM1"', f.read())
+        #     assert check.group() == 'DRIVE_TRAIN_TYPE = "MM1"'
+        #     f.seek(0)
+        #     check = re.search('STEERING_RIGHT_PWM = 450', f.read())
+        #     assert check.group() == 'STEERING_RIGHT_PWM = 450'
 
     def test_update_env(self):
         config_data = {"CARAPP_PATH": "/home/pi/mycar_mm1"}
@@ -289,8 +293,3 @@ class TestVehicleUnit(TestCase):
                 assert Vehicle.extract_value_from_config_line(config_content, 'MM1_STEERING_MID') is not None
                 assert Vehicle.extract_value_from_config_line(myconfig_content, 'MM1_STEERING_MID') is not None
 
-    def test_abc(self):
-        content = '''\n
-DRIVE_TRAIN_TYPE = "MM1"\n
-        '''
-        assert Vehicle.extract_value_from_config_line(content.splitlines(), 'DRIVE_TRAIN_TYPE') == "asdf"

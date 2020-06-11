@@ -385,9 +385,14 @@ class Vehicle(object):
         return proc
 
     @classmethod
-    def edit_file(cls, path, config_data):
+    def edit_file(cls, lines, key):
         flattened_map = cls.flatten_config_map()
-        for key in config_data:
+        for line in lines:
+            search = re.search(rf'^#*\s*({key}*)\s*=\s*(.*)\n', line)
+            # if search:
+            #     print(search.group())
+            if search and search.groups():
+                print(search)
             with open(path, 'r') as f:
                 if (not re.search(rf'(?m)^#*\s*({key}*)\s*=\s*(.*)\n', f.read())):
                     output = open(path, "a")
@@ -396,6 +401,7 @@ class Vehicle(object):
                     else:
                         output.write(f'{key} = {config_data[key]}\n')
                     output.close
+                    f.close
                 else:
                     f.seek(0)
                     if flattened_map[key]['dtype'] == "str" or flattened_map[key]['dtype'] == "mc":
@@ -406,12 +412,18 @@ class Vehicle(object):
                     output.seek(0)
                     output.write(newline)
                     output.close
+                    f.close
 
 
     @classmethod
     def update_myconfig(cls, config_data):
         path = cls.carapp_path + "/myconfig.py"
-        cls.edit_file(path, config_data)
+        with open(path, 'r') as f:
+            lines = f.readlines()
+            for key in config_data:
+                cls.edit_file(lines, key)
+
+        return lines
 
     @classmethod
     def sync_time(cls, currentTime):
@@ -482,19 +494,14 @@ class Vehicle(object):
         value = None
 
         for line in lines:
-            print(line)
             search = re.search(rf'^#*\s*{key}\s*=\s*([^#]*)#*.*$', line)
 
             if search and search.groups():
-                print(search.group())
                 value_str = re.sub(r'["\s]', "", search.groups()[0])
                 if cls.is_number(value_str):
                     value = cls.to_num(value_str)
                 else:
                     value = value_str
-
-                print(value)
-                print(type(value))
 
         return value
 
@@ -511,14 +518,11 @@ class Vehicle(object):
 
                 for section_name in config.keys():
                     for config_name in config[section_name].keys():
-                        print(f"{config_name}")
-
                         value = cls.extract_value_from_config_line(myconfig_content, config_name)
 
                         if value is None:
                             value = cls.extract_value_from_config_line(config_content, config_name)
                             if value is None:
-                                print(config_name)
                                 raise Exception(f"Cannot find default value for {config_name} ")
 
                         else:
