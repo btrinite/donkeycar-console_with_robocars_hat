@@ -289,3 +289,8 @@ class TestVehicleUnit(TestCase):
                 assert Vehicle.extract_value_from_config_line(config_content, 'MM1_STEERING_MID') is not None
                 assert Vehicle.extract_value_from_config_line(myconfig_content, 'MM1_STEERING_MID') is not None
 
+    def test_abc(self):
+        content = '''\n
+DRIVE_TRAIN_TYPE = "MM1"\n
+        '''
+        assert Vehicle.extract_value_from_config_line(content.splitlines(), 'DRIVE_TRAIN_TYPE') == "asdf"

@@ -482,7 +482,8 @@ class Vehicle(object):
         value = None
 
         for line in lines:
-            search = re.search(rf'^#*\s*{key}\s*=\s*([^#]*)#+.*$', line)
+            print(line)
+            search = re.search(rf'^#*\s*{key}\s*=\s*([^#]*)#*.*$', line)
 
             if search and search.groups():
                 print(search.group())
