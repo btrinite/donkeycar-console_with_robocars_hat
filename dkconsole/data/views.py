@@ -187,10 +187,13 @@ def histogram(requst, tub_name):
     '''
     http://localhost:8000/data/tub_9_20-01-10/tub_9_20-01-10_hist.png
     '''
-    TubService.gen_histogram(Path(settings.DATA_DIR) / tub_name)
-    histogram_name = tub_name + "_hist.png"
-    image_file_path = Path(settings.DATA_DIR) / tub_name / histogram_name
-    return FileResponse(open(image_file_path, 'rb'))
+    try:
+        TubService.gen_histogram(Path(settings.DATA_DIR) / tub_name)
+        histogram_name = tub_name + "_hist.png"
+        image_file_path = Path(settings.DATA_DIR) / tub_name / histogram_name
+        return FileResponse(open(image_file_path, 'rb'))
+    except IOError:
+        return FileResponse(open(get_no_image_path(), 'rb'))
 
 
 @api_view(['GET'])

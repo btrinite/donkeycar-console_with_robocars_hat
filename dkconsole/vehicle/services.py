@@ -234,6 +234,7 @@ class Vehicle(object):
                     return True
                 else:
                     print(f"current ssid = {current_ssid}")
+            cls.remove_network(ssid)
             return False
         except Exception as e:
             print(e)
@@ -335,6 +336,9 @@ class Vehicle(object):
 
     @classmethod
     def first_time_finish(cls, hostname, ssid, psk, controller):
+        if controller is not None:
+            cls.update_myconfig(controller)
+
         if ssid is not None:
             wifi = cls.add_network(ssid, psk)
             if wifi is not True:
@@ -344,10 +348,6 @@ class Vehicle(object):
         if hostname is not None:
             cls.set_hostname(hostname, None)
             cls.reboot_required = True
-
-        if controller is not None:
-            cls.update_myconfig(controller)
-            cls.reboot_required = False
 
         cls.write_setup_file_to_disk()
 
@@ -537,3 +537,12 @@ class Vehicle(object):
                 result[key] = item
         return result
 
+    @classmethod
+    def reset_config(cls):
+        subprocess.check_output(
+                    ['sudo', 'cp', '/opt/donkeycar-images/resources/myconfig.py', f'{cls.carapp_path}/myconfig.py'])
+        return True
+
+    @classmethod
+    def power_off(cls):
+        subprocess.check_output(['sudo', 'shutdown', '-h', 'now'])
