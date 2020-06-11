@@ -34,7 +34,8 @@ def index(request):
 
 @api_view(['GET'])
 def tub_archive(request, tub_name):
-    archive_path = TubService.generate_tub_archive(tub_name)
+    tub_paths = [Path(settings.DATA_DIR) / tub_name]
+    archive_path = TubService.generate_tub_archive(tub_paths)
 
     if os.path.exists(archive_path):
         with open(archive_path, 'rb') as fh:
@@ -192,7 +193,7 @@ def histogram(requst, tub_name):
         histogram_name = tub_name + "_hist.png"
         image_file_path = Path(settings.DATA_DIR) / tub_name / histogram_name
         return FileResponse(open(image_file_path, 'rb'))
-    except IOError:
+    except:
         return FileResponse(open(get_no_image_path(), 'rb'))
 
 
