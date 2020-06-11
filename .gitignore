@@ -87,7 +87,6 @@ local_settings.py
 settings.json
 
 .env_secret
-.env_pc
 .env
 db.sqlite3
 

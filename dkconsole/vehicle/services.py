@@ -108,7 +108,7 @@ class Vehicle(object):
             cls.stop_driving()
 
         if MLModelService.model_exists(model_path):
-            command = cls.build_command(use_joystick, model_path, tub_meta)
+            command = cls.build_drive_command(use_joystick, model_path, tub_meta)
 
             cls.proc = subprocess.Popen(command)
             return cls.proc.pid
@@ -443,7 +443,7 @@ class Vehicle(object):
     @classmethod
     def config(cls):
         data = {
-            "section 1": {
+            "Controller": {
                 "DRIVE_TRAIN_TYPE": {"value": "SERVO_ESC", "dtype": "mc", "choices": ['SERVO_ESC', 'MM1']}
             },
             "section 2": {
@@ -456,7 +456,74 @@ class Vehicle(object):
                     "MM1_MAX_REVERSE": {"value": 1000, "dtype": "int", "default": 1000},
             }
         }
+
+        data = cls.read_value_from_config(data)
+
         return data
+
+
+    @classmethod
+    def is_number(cls, s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+
+    @classmethod
+    def to_num(cls, s):
+        try:
+            return int(s)
+        except ValueError:
+            return float(s)
+
+    @classmethod
+    def extract_value_from_config_line(cls, lines, key):
+        value = None
+
+        for line in lines:
+            search = re.search(rf'^#*\s*{key}\s*=\s*([^#]*)#+.*$', line)
+
+            if search and search.groups():
+                print(search.group())
+                value_str = re.sub(r'["\s]', "", search.groups()[0])
+                if cls.is_number(value_str):
+                    value = cls.to_num(value_str)
+                else:
+                    value = value_str
+
+                print(value)
+                print(type(value))
+
+        return value
+
+
+    @classmethod
+    def read_value_from_config(cls, config):
+        config_path = cls.carapp_path + "/config.py"
+        myconfig_path = cls.carapp_path + "/myconfig.py"
+
+        with open(config_path, 'r') as f_config:
+            with open(myconfig_path, 'r') as f_myconfig:
+                config_content = f_config.readlines()
+                myconfig_content = f_myconfig.readlines()
+
+                for section_name in config.keys():
+                    for config_name in config[section_name].keys():
+                        print(f"{config_name}")
+
+                        value = cls.extract_value_from_config_line(myconfig_content, config_name)
+
+                        if value is None:
+                            value = cls.extract_value_from_config_line(config_content, config_name)
+                            if value is None:
+                                print(config_name)
+                                raise Exception(f"Cannot find default value for {config_name} ")
+
+                        else:
+                            config[section_name][config_name]['value'] = value
+
+        return config
 
     @classmethod
     def flatten_config_map(cls):

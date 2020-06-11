@@ -1,0 +1,1 @@
+gunicorn dkconsole.wsgi -b 0.0.0.0:8000 -c gunicorn.config.py

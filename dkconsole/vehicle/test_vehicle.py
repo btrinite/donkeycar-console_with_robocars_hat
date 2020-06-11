@@ -268,7 +268,24 @@ class TestVehicleUnit(TestCase):
                 Vehicle.remove_network("robocar")
                 assert mock_method.call_count == 2
 
+
     def test_reset_config(self):
         Vehicle.reset_config()
         path = Vehicle.carapp_path + "/myconfig copy.py"
         assert os.stat(path).st_size == 0
+
+    def test_get_config(self):
+        Vehicle.read_value_from_config(Vehicle.config())
+
+    def test_extract_value_from_config_line(self):
+        config_path = Vehicle.carapp_path + "/config.py"
+        myconfig_path = Vehicle.carapp_path + "/myconfig.py"
+
+        with open(myconfig_path, 'r') as f_config:
+            with open(myconfig_path, 'r') as f_myconfig:
+                config_content = f_config.readlines()
+                myconfig_content = f_myconfig.readlines()
+
+                assert Vehicle.extract_value_from_config_line(config_content, 'MM1_STEERING_MID') is not None
+                assert Vehicle.extract_value_from_config_line(myconfig_content, 'MM1_STEERING_MID') is not None
+
