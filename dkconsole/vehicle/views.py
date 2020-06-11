@@ -155,10 +155,10 @@ def change_password(request):
 
 
 @api_view(['POST'])
-def update_myconfig(request):
+def update_config(request):
     try:
         config_data = request.data
-        Vehicle.update_myconfig(config_data)
+        Vehicle.update_config(config_data)
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})

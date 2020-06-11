@@ -337,7 +337,7 @@ class Vehicle(object):
     @classmethod
     def first_time_finish(cls, hostname, ssid, psk, controller):
         if controller is not None:
-            cls.update_myconfig(controller)
+            cls.update_config(controller)
 
         if ssid is not None:
             wifi = cls.add_network(ssid, psk)
@@ -385,45 +385,54 @@ class Vehicle(object):
         return proc
 
     @classmethod
-    def edit_file(cls, lines, key):
-        flattened_map = cls.flatten_config_map()
-        for line in lines:
-            search = re.search(rf'^#*\s*({key}*)\s*=\s*(.*)\n', line)
-            # if search:
-            #     print(search.group())
-            if search and search.groups():
-                print(search)
-            with open(path, 'r') as f:
-                if (not re.search(rf'(?m)^#*\s*({key}*)\s*=\s*(.*)\n', f.read())):
-                    output = open(path, "a")
-                    if flattened_map[key]['dtype'] == "str" or flattened_map[key]['dtype'] == "mc":
-                        output.write(f'{key} = "{config_data[key]}"\n')
-                    else:
-                        output.write(f'{key} = {config_data[key]}\n')
-                    output.close
-                    f.close
-                else:
-                    f.seek(0)
-                    if flattened_map[key]['dtype'] == "str" or flattened_map[key]['dtype'] == "mc":
-                        newline = re.sub(rf'(?m)^#*\s*({key}*)\s*=\s*(.*)\n', f'{key} = "{config_data[key]}"\n', f.read())
-                    else:
-                        newline = re.sub(rf'(?m)^#*\s*({key}*)\s*=\s*(.*)\n', f'{key} = {config_data[key]}\n', f.read())
-                    output = open(path, "w")
-                    output.seek(0)
-                    output.write(newline)
-                    output.close
-                    f.close
+    def replace_key_in_lines(cls, lines, key, replacement_line):
+        replaced = False
+        for idx, line in enumerate(lines):
+            search = re.search(rf'^#*\s*{key}\s*=\s*(.*)$', line)
+
+            if search is not None:
+                lines[idx] = replacement_line
+                replaced = True
+
+        if replaced is False:
+            lines.append(replacement_line)
+
+        print(len(lines))
+        return lines
+
+    @classmethod
+    def file_readlines(cls, f):
+        ''' convenient method for unit testing patching '''
+        return f.readlines()
+
+    @classmethod
+    def file_writelines(cls, f, lines):
+        ''' convenient method for unit testing patching '''
+        f.writelines(lines)
 
 
     @classmethod
-    def update_myconfig(cls, config_data):
-        path = cls.carapp_path + "/myconfig.py"
-        with open(path, 'r') as f:
-            lines = f.readlines()
-            for key in config_data:
-                cls.edit_file(lines, key)
+    def replace_all_keys_in_lines(cls, lines, config_data, flattened_map):
+        for key in config_data:
+            if flattened_map[key]['dtype'] == "str" or flattened_map[key]['dtype'] == "mc":
+                replacement_line = f'{key} = "{config_data[key]}"'
+            else:
+                replacement_line = f'{key} = {config_data[key]}'
+
+            lines = cls.replace_key_in_lines(lines, key, replacement_line)
 
         return lines
+
+    @classmethod
+    def update_config(cls, config_data):
+        path = cls.carapp_path + "/myconfig.py"
+        with open(path, 'r') as f:
+            lines = cls.file_readlines(f)
+            flattened_map = cls.flatten_config_map()
+            lines = cls.replace_all_keys_in_lines(lines, config_data, flattened_map)
+
+        with open(path, 'w') as f:
+            cls.file_writelines(f, lines)
 
     @classmethod
     def sync_time(cls, currentTime):

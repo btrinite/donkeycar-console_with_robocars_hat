@@ -87,7 +87,6 @@ class TestVehicleUnit(TestCase):
                 netifaces.AF_LINK: [{'addr': 'a0:51:0b:61:de:e2', 'broadcast': 'ff:ff:ff:ff:ff:ff'}],
                 netifaces.AF_INET: [{'addr': '192.168.3.2', 'netmask': '255.255.255.0', 'broadcast': '192.168.3.255'}]
             }
-
         ]
 
         ip_address = Vehicle.get_wlan_ip_address()
@@ -154,23 +153,6 @@ class TestVehicleUnit(TestCase):
         Vehicle.remove_all_network()
 
 
-    def test_update_myconfig(self):
-
-        # line = 'CAMERA_TYPE = "IMAGE_LIST"   # (PICAM|WEBCAM|CVCAM|CSIC|V4L|D435|MOCK|IMAGE_LIST)'
-
-        # newline = Vehicle.replace_kv_in_cfg(line, "CAMERA_TYPE", "jonathan")
-
-
-
-        # line = 'PATH_MASK = "~/mycar/data/tub_77_19-05-22/*.jpg"'
-
-        # newline = Vehicle.replace_kv_in_cfg(line, "CAMERA_TYPE", "jonathan")
-
-        # assert newline == 'CAMERA_TYPE = "value1"   # (PICAM|WEBCAM|CVCAM|CSIC|V4L|D435|MOCK|IMAGE_LIST)'
-
-        config_data = {"section": {"CAMERA_TYPE": "PICAM", "DRIVE_TRAIN_TYPE": "SERVO_ESC"}}
-
-        Vehicle.update_myconfig(config_data)
 
     # TODO: Fix mock
     def test_sync_time(self):
@@ -221,20 +203,7 @@ class TestVehicleUnit(TestCase):
             output = f.readlines()
         assert output[1] == "127.0.1.1 testing123"
 
-    def test_edit_config_file(self):
-        config_data = {"DRIVE_TRAIN_TYPE": "MM1", "STEERING_RIGHT_PWM": 400}
-        # config_data = {"STEERING_RIGHT_PWM": 600}
-        path = Vehicle.carapp_path + "/myconfig copy.py"
-        with open(path, 'r') as f:
-            lines = f.readlines()
-            for key in config_data:
-                Vehicle.edit_file(lines, key)
-        # # with open(path, 'r') as f:
-        #     check = re.search('DRIVE_TRAIN_TYPE = "MM1"', f.read())
-        #     assert check.group() == 'DRIVE_TRAIN_TYPE = "MM1"'
-        #     f.seek(0)
-        #     check = re.search('STEERING_RIGHT_PWM = 450', f.read())
-        #     assert check.group() == 'STEERING_RIGHT_PWM = 450'
+
 
     def test_update_env(self):
         config_data = {"CARAPP_PATH": "/home/pi/mycar_mm1"}
@@ -292,4 +261,65 @@ class TestVehicleUnit(TestCase):
 
                 assert Vehicle.extract_value_from_config_line(config_content, 'MM1_STEERING_MID') is not None
                 assert Vehicle.extract_value_from_config_line(myconfig_content, 'MM1_STEERING_MID') is not None
+
+
+    def test_replace_key_in_lines(self):
+        content = '''#DRIVE_TRAIN_TYPE = "MM1"
+# DRIVE_TRAIN_TYPE = "MM1"
+DRIVE_TRAIN_TYPE = "MM1"
+'''
+
+        assert Vehicle.replace_key_in_lines(content.splitlines(), 'DRIVE_TRAIN_TYPE', 'DRIVE_TRAIN_TYPE = "ABC"') == [
+            'DRIVE_TRAIN_TYPE = "ABC"',
+            'DRIVE_TRAIN_TYPE = "ABC"',
+            'DRIVE_TRAIN_TYPE = "ABC"'
+        ]
+
+
+        content = '#DRIVE_TRAIN_TYPE = "MM1"'
+        assert Vehicle.replace_key_in_lines(content.splitlines(), 'DRIVE_TRAIN_TYPE', 'DRIVE_TRAIN_TYPE = "ABC"') == [
+            'DRIVE_TRAIN_TYPE = "ABC"'
+        ]
+
+        content = '#DRIVE_TRAIN_TYPE = "MM1"'
+        assert Vehicle.replace_key_in_lines(content.splitlines(), 'STEERING_RIGHT_PWM', 'STEERING_RIGHT_PWM = 123') == [
+            '#DRIVE_TRAIN_TYPE = "MM1"',
+            'STEERING_RIGHT_PWM = 123',
+        ]
+
+    def test_replace_all_keys_in_lines(self):
+        content = '''#DRIVE_TRAIN_TYPE = "MM1"
+# DRIVE_TRAIN_TYPE = "MM1"
+DRIVE_TRAIN_TYPE = "MM1"'''
+
+        config_data = {'DRIVE_TRAIN_TYPE': 'hahah', 'STEERING_RIGHT_PWM': 'hahah2'}
+        flattened_map = Vehicle.flatten_config_map()
+        assert Vehicle.replace_all_keys_in_lines(content.splitlines(), config_data, flattened_map) == [
+            'DRIVE_TRAIN_TYPE = "hahah"',
+            'DRIVE_TRAIN_TYPE = "hahah"',
+            'DRIVE_TRAIN_TYPE = "hahah"',
+            'STEERING_RIGHT_PWM = hahah2',
+        ]
+
+    def test_update_config(self):
+        path = settings.ROOT_DIR / "dkconsole" / "test_data" / "myconfig.py"
+
+        with open(path, 'r') as f:
+            content = Vehicle.file_readlines(f)
+            print(content)
+
+        config_data = {"DRIVE_TRAIN_TYPE": "SERVO_ESC"}
+
+        with patch('dkconsole.vehicle.services.Vehicle.file_readlines', return_value=content) as mock_file_readlines:
+            with patch('dkconsole.vehicle.services.Vehicle.file_writelines') as mock_file_writelines:
+                Vehicle.update_config(config_data)
+                mock_file_readlines.assert_called_once()
+                mock_file_writelines.assert_called_once()
+                found = False
+
+                for line in mock_file_writelines.call_args_list[0][0][1]:
+                    if 'DRIVE_TRAIN_TYPE = "SERVO_ESC"' in line:
+                        found = True
+
+                assert found
 
