@@ -338,7 +338,6 @@ class Vehicle(object):
     def first_time_finish(cls, hostname, ssid, psk, controller):
         if controller is not None:
             cls.update_myconfig(controller)
-            cls.reboot_required = False
 
         if ssid is not None:
             wifi = cls.add_network(ssid, psk)
