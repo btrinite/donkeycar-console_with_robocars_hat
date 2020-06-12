@@ -570,3 +570,7 @@ class Vehicle(object):
     @classmethod
     def power_off(cls):
         subprocess.check_output(['sudo', 'shutdown', '-h', 'now'])
+
+    @classmethod
+    def factory_reset(cls):
+        return True
