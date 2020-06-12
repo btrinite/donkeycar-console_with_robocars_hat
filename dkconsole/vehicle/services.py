@@ -80,8 +80,11 @@ class Vehicle(object):
     @classmethod
     def stop_calibrate(cls):
         if cls.calibrate_proc is not None:
+            print("stop calibrate: sending SIGINT")
             cls.calibrate_proc.send_signal(signal.SIGINT)
             cls.calibrate_proc = None
+        else:
+            print("stop calibrate: No proc found. Cannot send stop driving signal")
 
     @classmethod
     def start_driving(cls, use_joystick, tub_meta=None):
@@ -93,6 +96,7 @@ class Vehicle(object):
 
         with open(cls.carapp_path + "/drive.log", 'w') as log:
             cls.proc = subprocess.Popen(command, stdout=log)
+            print(f"cls.proc = {cls.proc}")
 
         return cls.proc.pid
 
@@ -102,6 +106,8 @@ class Vehicle(object):
             print("stop driving: sending SIGINT")
             cls.proc.send_signal(signal.SIGINT)
             cls.proc = None
+        else:
+            print("stop driving: No proc found. Cannot send stop driving signal")
 
     @classmethod
     def start_autopilot(cls, use_joystick, model_path, tub_meta=None):
