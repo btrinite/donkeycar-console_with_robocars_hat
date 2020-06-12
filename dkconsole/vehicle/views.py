@@ -18,7 +18,7 @@ def index(request):
 @api_view(['GET'])
 def block(request):
     # This function does nothing but block the thread. For testing gunicorn worker setting
-    time.sleep(1)
+    time.sleep(60)
     return Response({"status": "blocked 1 seconds"})
 
 
