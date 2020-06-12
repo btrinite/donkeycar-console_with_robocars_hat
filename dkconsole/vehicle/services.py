@@ -403,21 +403,23 @@ class Vehicle(object):
     @classmethod
     def file_readlines(cls, f):
         ''' convenient method for unit testing patching '''
-        return f.readlines()
+        lines = f.readlines()
+        return lines
 
     @classmethod
     def file_writelines(cls, f, lines):
         ''' convenient method for unit testing patching '''
         f.writelines(lines)
+        # f.writ
 
 
     @classmethod
     def replace_all_keys_in_lines(cls, lines, config_data, flattened_map):
         for key in config_data:
             if flattened_map[key]['dtype'] == "str" or flattened_map[key]['dtype'] == "mc":
-                replacement_line = f'{key} = "{config_data[key]}"'
+                replacement_line = f'{key} = "{config_data[key]}"\n'
             else:
-                replacement_line = f'{key} = {config_data[key]}'
+                replacement_line = f'{key} = {config_data[key]}\n'
 
             lines = cls.replace_key_in_lines(lines, key, replacement_line)
 

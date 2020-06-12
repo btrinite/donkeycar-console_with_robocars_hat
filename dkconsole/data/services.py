@@ -88,7 +88,7 @@ class TubService():
 
         with tarfile.open(fileobj=f, mode='w:gz') as tar:
             for tub_path in tub_paths:
-                p = tub_path
+                p = Path(tub_path)
                 tar.add(p, arcname=p.name)
 
         f.close()
