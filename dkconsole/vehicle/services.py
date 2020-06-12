@@ -196,7 +196,7 @@ class Vehicle(object):
     def update_donkey_software(cls):
         verbose = subprocess.check_output(['git', 'pull'], cwd=settings.DONKEYCAR_DIR)
         command = [f"{cls.venv_path}/donkey createcar --path {settings.CARAPP_PATH} --overwrite"]
-        verbose = subprocess.check_output(command)
+        verbose = subprocess.check_output(command, shell=True)
         output = verbose.decode('utf-8')
         return output
 
