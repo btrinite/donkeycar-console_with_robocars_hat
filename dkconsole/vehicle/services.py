@@ -305,14 +305,17 @@ class Vehicle(object):
 
     @classmethod
     def edit_hostname(cls, hostname, path):
-        if (os.path.exists(path)):
-            with open(path, 'r') as f:
-                newHostname = re.sub(f"(127\.0\.1\.1)\s*.*\n*", f"127.0.1.1 {hostname}", f.read())
-                f.close
-                output = open(path, 'w')
-                output.seek(0)
-                output.write(newHostname)
-                output.close
+        try:
+            if (os.path.exists(path)):
+                with open(path, 'r') as f:
+                    newHostname = re.sub(f"(127\.0\.1\.1)\s*.*\n*", f"127.0.1.1 {hostname}", f.read())
+                    f.close
+                    output = open(path, 'w')
+                    output.seek(0)
+                    output.write(newHostname)
+                    output.close
+        except:
+            print("to be fixed")
 
     @classmethod
     def set_hostname(cls, hostname):
