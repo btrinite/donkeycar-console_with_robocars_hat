@@ -346,7 +346,7 @@ class Vehicle(object):
             cls.reboot_required = True
 
         if hostname is not None:
-            cls.set_hostname(hostname, None)
+            cls.set_hostname(hostname)
             cls.reboot_required = True
 
         cls.write_setup_file_to_disk()
