@@ -18,6 +18,7 @@ urlpatterns = [
     path('scan_network', views.scan_network, name='scan_network'),
     path('change_password', views.change_password, name='change_password'),
     path('update_config', views.update_config, name='update_config'),
+    path('update_myconfig', views.update_config, name='update_config'), # legacy
     path('sync_time', views.sync_time, name='sync_time'),
     path('config', views.config, name='config'),
     path('update_env', views.update_env, name='update_env'),
