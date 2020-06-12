@@ -220,3 +220,11 @@ def reset_config(request):
 def power_off(request):
     Vehicle.power_off()
 
+@api_view(['POST'])
+def factory_reset(request):
+    try:
+        Vehicle.factory_reset()
+        return Response({"status": "success"})
+    except Exception as e:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
