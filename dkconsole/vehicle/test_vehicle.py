@@ -295,10 +295,10 @@ DRIVE_TRAIN_TYPE = "MM1"'''
         config_data = {'DRIVE_TRAIN_TYPE': 'hahah', 'STEERING_RIGHT_PWM': 'hahah2'}
         flattened_map = Vehicle.flatten_config_map()
         assert Vehicle.replace_all_keys_in_lines(content.splitlines(), config_data, flattened_map) == [
-            'DRIVE_TRAIN_TYPE = "hahah"',
-            'DRIVE_TRAIN_TYPE = "hahah"',
-            'DRIVE_TRAIN_TYPE = "hahah"',
-            'STEERING_RIGHT_PWM = hahah2',
+            'DRIVE_TRAIN_TYPE = "hahah"\n',
+            'DRIVE_TRAIN_TYPE = "hahah"\n',
+            'DRIVE_TRAIN_TYPE = "hahah"\n',
+            'STEERING_RIGHT_PWM = hahah2\n',
         ]
 
     def test_update_config(self):
@@ -308,7 +308,7 @@ DRIVE_TRAIN_TYPE = "MM1"'''
             content = Vehicle.file_readlines(f)
             print(content)
 
-        config_data = {"DRIVE_TRAIN_TYPE": "SERVO_ESC"}
+        config_data = {"DRIVE_TRAIN_TYPE": "SERVO_ESC", "MM1_MAX_FORWARD": 2000}
 
         with patch('dkconsole.vehicle.services.Vehicle.file_readlines', return_value=content) as mock_file_readlines:
             with patch('dkconsole.vehicle.services.Vehicle.file_writelines') as mock_file_writelines:
@@ -322,4 +322,3 @@ DRIVE_TRAIN_TYPE = "MM1"'''
                         found = True
 
                 assert found
-
