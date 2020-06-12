@@ -564,7 +564,7 @@ class Vehicle(object):
     @classmethod
     def reset_config(cls):
         subprocess.check_output(
-                    ['sudo', 'cp', '/opt/donkeycar-console/dkconconsole/vehicle/myconfig.py', f'{cls.carapp_path}/myconfig.py'])
+                    ['sudo', 'cp', '/opt/donkeycar-console/dkconsole/vehicle/myconfig.py', f'{cls.carapp_path}/myconfig.py'])
         return True
 
     @classmethod
