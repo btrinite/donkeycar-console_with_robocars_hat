@@ -96,6 +96,7 @@ class Vehicle(object):
 
         with open(cls.carapp_path + "/drive.log", 'w') as log:
             cls.proc = subprocess.Popen(command, stdout=log)
+            print(f"cls.proc = {cls.proc}")
 
         return cls.proc.pid
 
