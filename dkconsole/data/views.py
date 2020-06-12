@@ -202,11 +202,14 @@ def latest_histogram(requst):
     '''
     http://localhost:8000/data/tub_9_20-01-10/tub_9_20-01-10_hist.png
     '''
-    latest = TubService.get_latest()
-    TubService.gen_histogram(Path(settings.DATA_DIR) / latest.name)
-    histogram_name = latest.name + "_hist.png"
-    image_file_path = Path(settings.DATA_DIR) / latest.name / histogram_name
-    return FileResponse(open(image_file_path, 'rb'))
+    try:
+        latest = TubService.get_latest()
+        TubService.gen_histogram(Path(settings.DATA_DIR) / latest.name)
+        histogram_name = latest.name + "_hist.png"
+        image_file_path = Path(settings.DATA_DIR) / latest.name / histogram_name
+        return FileResponse(open(image_file_path, 'rb'))
+    except:
+        return FileResponse(open(get_no_image_path(), 'rb'))
 
 
 @api_view(['GET'])

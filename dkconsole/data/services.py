@@ -145,6 +145,9 @@ class TubService():
 
     @classmethod
     def gen_histogram(cls, tub_path):
+        if cls.get_jpg_file_count_on_disk(tub_path) == 0:
+            raise Exception("empty tub")
+
         histogram_name = os.path.basename(tub_path) + "_hist.png"
         histogram_path = tub_path / histogram_name
         if (not os.path.exists(histogram_path)):

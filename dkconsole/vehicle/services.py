@@ -99,6 +99,7 @@ class Vehicle(object):
     @classmethod
     def stop_driving(cls):
         if cls.proc is not None:
+            print("stop driving: sending SIGINT")
             cls.proc.send_signal(signal.SIGINT)
             cls.proc = None
 
@@ -188,8 +189,9 @@ class Vehicle(object):
 
     @classmethod
     def update_donkey_software(cls):
-        verbose = subprocess.check_output(['git', 'pull'], cwd=settings.CARAPP_PATH)
-        subprocess.check_output(['sudo', 'service', 'gunicorn', 'restart'])
+        verbose = subprocess.check_output(['git', 'pull'], cwd=settings.DONKEYCAR_DIR)
+        command = [f"{cls.venv_path}/donkey createcar --path {settings.CARAPP_PATH} --overwrite"]
+        verbose = subprocess.check_output(command)
         output = verbose.decode('utf-8')
         return output
 
