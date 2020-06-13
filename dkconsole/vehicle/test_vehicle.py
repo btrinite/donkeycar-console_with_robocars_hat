@@ -198,9 +198,10 @@ class TestVehicleUnit(TestCase):
 
     def test_update_host_table(self):
         path = self.test_data_dir / "hosts"
-        print(path)
+        sudo_required = False
+        return_value = path, sudo_required
 
-        with patch('dkconsole.vehicle.services.Vehicle.host_table_path', return_value=path):
+        with patch('dkconsole.vehicle.services.Vehicle.host_table_path', return_value=return_value):
             Vehicle.update_host_table("testing123")
             with open(path, 'r') as f:
                 output = f.readlines()

@@ -303,13 +303,18 @@ class Vehicle(object):
 
     @classmethod
     def host_table_path(cls):
-        return "/etc/hosts"
+        sudo_required = True
+        return "/etc/hosts", sudo_required
 
     @classmethod
     def update_host_table(cls, hostname):
         try:
-            host_table_path = cls.host_table_path()
-            command = f'sudo sed -i "s/127.0.1.1.*/127.0.1.1\t{hostname}/g" {host_table_path}'
+            host_table_path, sudo_required = cls.host_table_path()
+            command = f'sed -i "s/127.0.1.1.*/127.0.1.1\t{hostname}/g" {host_table_path}'
+
+            if sudo_required:
+                command = 'sudo ' + command
+
             result = subprocess.check_output(command, shell=True)
         except Exception as e:
             print(f"failed to update host table. Reason: {e}")
