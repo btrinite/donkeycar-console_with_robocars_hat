@@ -289,7 +289,6 @@ class Vehicle(object):
                 print(f"removing network {network['network']}")
                 subprocess.check_output(['wpa_cli', 'remove_network', network['network']])
 
-
     @classmethod
     def remove_all_network(cls):
         subprocess.check_output(['wpa_cli', 'remove_network', 'all'])
@@ -298,30 +297,27 @@ class Vehicle(object):
 
         subprocess.Popen(['sudo /etc/raspap/hostapd/servicestart.sh --interface uap0 --seconds 3'], shell=True)
 
-
     @classmethod
     def reboot(cls):
         subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
 
     @classmethod
-    def edit_hostname(cls, hostname, path):
+    def host_table_path(cls):
+        return "/etc/hosts"
+
+    @classmethod
+    def update_host_table(cls, hostname):
         try:
-            if (os.path.exists(path)):
-                with open(path, 'r') as f:
-                    newHostname = re.sub(f"(127\.0\.1\.1)\s*.*\n*", f"127.0.1.1 {hostname}", f.read())
-                    f.close
-                    output = open(path, 'w')
-                    output.seek(0)
-                    output.write(newHostname)
-                    output.close
-        except:
-            print("to be fixed")
+            host_table_path = cls.host_table_path()
+            command = f'sudo sed -i "s/127.0.1.1.*/127.0.1.1\t{hostname}/g" {host_table_path}'
+            result = subprocess.check_output(command, shell=True)
+        except Exception as e:
+            print(f"failed to update host table. Reason: {e}")
 
     @classmethod
     def set_hostname(cls, hostname):
         subprocess.check_output(['sudo', 'hostnamectl', 'set-hostname', f'{hostname}'])
-        hosts = "/etc/hosts"
-        cls.edit_hostname(hostname, hosts)
+        cls.update_host_table(hostname)
 
     @classmethod
     def first_time(cls):

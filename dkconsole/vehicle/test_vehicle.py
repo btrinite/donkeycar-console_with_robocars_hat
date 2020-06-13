@@ -23,6 +23,7 @@ class TestVehicleUnit(TestCase):
         Vehicle.proc = None
         self.mock_proc = MockProc()
         self.mock_proc.pid = 999
+        self.test_data_dir = settings.ROOT_DIR / "dkconsole" / "test_data"
 
     def test_settings(self):
         assert Vehicle.carapp_path
@@ -195,14 +196,15 @@ class TestVehicleUnit(TestCase):
                 mock_write_setup_file_to_disk.assert_called_once()
                 assert Vehicle.reboot_required is True
 
-    def test_edit_hostname(self):
-        path = Vehicle.carapp_path + str("/test_hostname.txt")
+    def test_update_host_table(self):
+        path = self.test_data_dir / "hosts"
         print(path)
-        Vehicle.edit_hostname("testing123", path)
-        with open(path, 'r') as f:
-            output = f.readlines()
-        assert output[1] == "127.0.1.1 testing123"
 
+        with patch('dkconsole.vehicle.services.Vehicle.host_table_path', return_value=path):
+            Vehicle.update_host_table("testing123")
+            with open(path, 'r') as f:
+                output = f.readlines()
+                assert "127.0.1.1\ttesting123\n" in output
 
 
     def test_update_env(self):
@@ -302,7 +304,7 @@ DRIVE_TRAIN_TYPE = "MM1"'''
         ]
 
     def test_update_config(self):
-        path = settings.ROOT_DIR / "dkconsole" / "test_data" / "myconfig.py"
+        path = self.test_data_dir / "myconfig.py"
 
         with open(path, 'r') as f:
             content = Vehicle.file_readlines(f)
