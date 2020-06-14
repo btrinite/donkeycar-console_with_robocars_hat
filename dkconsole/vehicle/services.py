@@ -247,20 +247,6 @@ class Vehicle(object):
         except Exception as e:
             print(e)
 
-    # TODO: Deprecated, to be deleted
-    # @classmethod
-    # def reset_network(cls, wipe):
-    #     try:
-    #         if (wipe is True):
-    #             subprocess.check_output(
-    #                 ['sudo', 'cp', '/home/pi/donkeycar-images/resources/wpa_supplicant.empty.conf', '/boot/wpa_supplicant.conf'])
-    #             subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
-    #         else:
-    #             subprocess.check_output(
-    #                 ['sudo', 'cp', '/home/pi/donkeycar-images/resources/wpa_supplicant.test.conf', '/boot/wpa_supplicant.conf'])
-    #             subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
-    #     except Exception as e:
-    #         print(e)
 
     @classmethod
     def list_network(cls):
@@ -578,3 +564,34 @@ class Vehicle(object):
     @classmethod
     def factory_reset(cls):
         return True
+
+    @classmethod
+    def battery_level_in_percentage(cls):
+        '''
+        return int, perecentage of battery
+        assume it is a 2 cell 8.4v lipo
+        '''
+
+        import board
+        import busio
+        import adafruit_ina219
+        i2c = busio.I2C(board.SCL, board.SDA)
+        ina219 = adafruit_ina219.INA219(i2c, 0x41)
+
+        return cls.calculate_battery_percentage(ina219.bus_voltage)
+
+    @classmethod
+    def calculate_battery_percentage(cls, current_voltage):
+        max_voltage = 8.4
+        min_voltage = 7
+
+        battery_level = int((current_voltage - min_voltage) / (max_voltage - min_voltage) * 100)
+
+        return battery_level
+
+
+        # print("Bus Voltage:   {} V".format())
+        # print("Shunt Voltage: {} mV".format(ina219.shunt_voltage / 1000))
+        # print("Current:       {} mA".format(ina219.current))
+
+
