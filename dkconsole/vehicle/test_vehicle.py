@@ -326,6 +326,9 @@ DRIVE_TRAIN_TYPE = "MM1"'''
 
                 assert found
 
+    def test_battery_level_in_percentage(self):
+        assert None == Vehicle.battery_level_in_percentage()
+
     def test_calculate_battery_percentage(self):
         assert 100 ==Vehicle.calculate_battery_percentage(8.4)
         assert 50 ==Vehicle.calculate_battery_percentage(7.7)
