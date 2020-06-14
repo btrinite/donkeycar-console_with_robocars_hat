@@ -64,7 +64,7 @@ def status(request):
                      "hotspot_ip_address": Vehicle.get_hotspot_ip_address(),
                      "isFirstTime": Vehicle.first_time(),
                      "current_ssid": Vehicle.get_current_ssid(),
-                     "battery_level": Vehicle.battery_level_in_percentage
+                     "battery_level": Vehicle.battery_level_in_percentage()
                      })
 
 
