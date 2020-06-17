@@ -475,6 +475,7 @@ class Vehicle(object):
                     "MM1_STEERING_MID": {"value": 1500, "dtype": "int", "default": 1500},
                     "MM1_MAX_FORWARD": {"value": 2000, "dtype": "int", "default": 2000},
                     "MM1_MAX_REVERSE": {"value": 1000, "dtype": "int", "default": 1000},
+                    "MM1_STOPPED_PWM": {"value": 1500, "dtype": "int", "default": 1500}
             }
         }
 
