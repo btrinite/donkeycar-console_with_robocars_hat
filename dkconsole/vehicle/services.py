@@ -465,17 +465,19 @@ class Vehicle(object):
     def config(cls):
         data = {
             "Controller": {
-                "DRIVE_TRAIN_TYPE": {"value": "SERVO_ESC", "dtype": "mc", "choices": ['SERVO_ESC', 'MM1']}
+                "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
+                "DRIVE_LOOP_HZ": {"dtype": "int", "default": 20},
+                "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0}
             },
             "section 2": {
-                    "STEERING_LEFT_PWM": {"value": 460, "dtype": "int", "default": 460},
-                    "STEERING_RIGHT_PWM": {"value": 290, "dtype": "int", "default": 290},
-                    "THROTTLE_FORWARD_PWM": {"value": 500, "dtype": "int", "default": 500},
-                    "THROTTLE_REVERSE_PWM": {"value": 220, "dtype": "int", "default": 220},
-                    "MM1_STEERING_MID": {"value": 1500, "dtype": "int", "default": 1500},
-                    "MM1_MAX_FORWARD": {"value": 2000, "dtype": "int", "default": 2000},
-                    "MM1_MAX_REVERSE": {"value": 1000, "dtype": "int", "default": 1000},
-                    "MM1_STOPPED_PWM": {"value": 1500, "dtype": "int", "default": 1500}
+                    "STEERING_LEFT_PWM": {"dtype": "int", "default": 460},
+                    "STEERING_RIGHT_PWM": {"dtype": "int", "default": 290},
+                    "THROTTLE_FORWARD_PWM": {"dtype": "int", "default": 500},
+                    "THROTTLE_REVERSE_PWM": {"dtype": "int", "default": 220},
+                    "MM1_STEERING_MID": {"dtype": "int", "default": 1500},
+                    "MM1_MAX_FORWARD": {"dtype": "int", "default": 2000},
+                    "MM1_MAX_REVERSE": {"dtype": "int", "default": 1000},
+                    "MM1_STOPPED_PWM": {"dtype": "int", "default": 1500}
             }
         }
 
@@ -534,7 +536,8 @@ class Vehicle(object):
                             value = cls.extract_value_from_config_line(config_content, config_name)
                             if value is None:
                                 raise Exception(f"Cannot find default value for {config_name} ")
-
+                            else:
+                                config[section_name][config_name]['value'] = value
                         else:
                             config[section_name][config_name]['value'] = value
 
@@ -573,13 +576,17 @@ class Vehicle(object):
         assume it is a 2 cell 8.4v lipo
         '''
 
-        import board
-        import busio
-        import adafruit_ina219
-        i2c = busio.I2C(board.SCL, board.SDA)
-        ina219 = adafruit_ina219.INA219(i2c, 0x41)
+        try:
+            import board
+            import busio
+            import adafruit_ina219
+            i2c = busio.I2C(board.SCL, board.SDA)
+            ina219 = adafruit_ina219.INA219(i2c, 0x41)
+            return cls.calculate_battery_percentage(ina219.bus_voltage)
+        except Exception as e:
+            print(e)
+            return 0
 
-        return cls.calculate_battery_percentage(ina219.bus_voltage)
 
     @classmethod
     def calculate_battery_percentage(cls, current_voltage):
