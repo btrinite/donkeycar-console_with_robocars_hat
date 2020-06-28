@@ -39,4 +39,19 @@ sudo ln -s gunicorn.service /etc/systemd/system/gunicorn.service
 
 ## Developer Guide
 
+### Setup environment
+
+#### Setup conda
+```
+conda create -n dconsole python=3.7
+conda activate dconsole
+pip install -r requirements/production.txt
+```
+
+#### Run server
+```
+python manage.py runserver 0.0.0.0:8000
+```
+
+
 1. Change .env_pc according to your PC.

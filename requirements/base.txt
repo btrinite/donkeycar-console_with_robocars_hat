@@ -23,3 +23,6 @@ requests==2.23.0
 requests-toolbelt==0.9.1
 
 adafruit-circuitpython-ina219==3.4.2
+
+
+Pillow==7.1.2
