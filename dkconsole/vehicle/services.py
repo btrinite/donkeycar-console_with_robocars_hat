@@ -464,20 +464,23 @@ class Vehicle(object):
     @classmethod
     def config(cls):
         data = {
-            "Controller": {
-                "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
+            "Basic": {
                 "DRIVE_LOOP_HZ": {"dtype": "int", "default": 20},
                 "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0}
             },
-            "section 2": {
-                    "STEERING_LEFT_PWM": {"dtype": "int", "default": 460},
-                    "STEERING_RIGHT_PWM": {"dtype": "int", "default": 290},
-                    "THROTTLE_FORWARD_PWM": {"dtype": "int", "default": 500},
-                    "THROTTLE_REVERSE_PWM": {"dtype": "int", "default": 220},
-                    "MM1_STEERING_MID": {"dtype": "int", "default": 1500},
-                    "MM1_MAX_FORWARD": {"dtype": "int", "default": 2000},
-                    "MM1_MAX_REVERSE": {"dtype": "int", "default": 1000},
-                    "MM1_STOPPED_PWM": {"dtype": "int", "default": 1500}
+            "Controller": {
+                "IMAGE_W": {"dtype": "int", "default": 160},
+                "IMAGE_H": {"dtype": "int", "default": 120},
+                "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
+                "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
+                "STEERING_LEFT_PWM": {"dtype": "int", "default": 460},
+                "STEERING_RIGHT_PWM": {"dtype": "int", "default": 290},
+                "THROTTLE_FORWARD_PWM": {"dtype": "int", "default": 500},
+                "THROTTLE_REVERSE_PWM": {"dtype": "int", "default": 220},
+                "MM1_STEERING_MID": {"dtype": "int", "default": 1500},
+                "MM1_MAX_FORWARD": {"dtype": "int", "default": 2000},
+                "MM1_MAX_REVERSE": {"dtype": "int", "default": 1000},
+                "MM1_STOPPED_PWM": {"dtype": "int", "default": 1500}
             }
         }
 
