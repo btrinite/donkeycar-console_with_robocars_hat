@@ -469,8 +469,6 @@ class Vehicle(object):
                 "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0}
             },
             "Controller": {
-                "IMAGE_W": {"dtype": "int", "default": 160},
-                "IMAGE_H": {"dtype": "int", "default": 120},
                 "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
                 "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
                 "STEERING_LEFT_PWM": {"dtype": "int", "default": 460},
@@ -481,6 +479,12 @@ class Vehicle(object):
                 "MM1_MAX_FORWARD": {"dtype": "int", "default": 2000},
                 "MM1_MAX_REVERSE": {"dtype": "int", "default": 1000},
                 "MM1_STOPPED_PWM": {"dtype": "int", "default": 1500}
+            },
+            "Camera": {
+                "IMAGE_W": {"dtype": "int", "default": 160},
+                "IMAGE_H": {"dtype": "int", "default": 120},
+                "ROI_CROP_TOP": {"dtype": "int", "default": 0},
+                "ROI_CROP_BOTTOM": {"dtype": "int", "default": 0},
             }
         }
 
