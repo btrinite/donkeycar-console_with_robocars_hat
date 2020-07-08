@@ -341,7 +341,6 @@ class Vehicle(object):
             wifi = cls.add_network(ssid, psk)
             if wifi is not True:
                 raise Exception("Cannot connect to wifi")
-            cls.reboot_required = True
 
         if hostname is not None:
             cls.set_hostname(hostname)
