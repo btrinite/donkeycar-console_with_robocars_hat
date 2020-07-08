@@ -120,7 +120,7 @@ def finish_first_time(request):
     psk = request.data['psk']
     controller = request.data['controller']
 
-    print(f"{hostname} {ssid} {psk} {controller}")
+    print(f"{request.data}")
 
     try:
         Vehicle.first_time_finish(hostname, ssid, psk, controller)
