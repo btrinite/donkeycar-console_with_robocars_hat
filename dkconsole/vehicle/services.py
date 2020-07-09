@@ -10,10 +10,12 @@ import time
 from pathlib import Path
 
 import netifaces
+import logging
 from django.conf import settings
 
 from dkconsole.model.services import MLModelService
 
+logger = logging.getLogger("vehicle.service")
 
 class Vehicle(object):
     # def __init__(self, **kwargs):
@@ -27,8 +29,6 @@ class Vehicle(object):
     calibrate_proc = None
     reboot_required = False
 
-
-
     @classmethod
     def build_calibrate_command(cls):
         command = [f"{cls.venv_path}/python", f"{cls.carapp_path}/calibrate.py".format(cls.carapp_path), "drive"]
@@ -36,7 +36,6 @@ class Vehicle(object):
         print(" ".join(command))
 
         return command
-
 
     @classmethod
     def build_drive_command(cls, use_joystick, model_path, tub_meta=None):
@@ -238,16 +237,16 @@ class Vehicle(object):
                 subprocess.check_output(['sleep', '3'])
                 current_ssid = cls.get_current_ssid()
                 if (ssid == current_ssid):
-                    print("Wifi connected. Shutting down hotstop")
+                    logger.info("Wifi connected. Shutting down hotstop")
                     # Delay shutting down the hotspot so that mobile client can receive the http response
-                    output = subprocess.Popen(['sleep 5 ; sudo systemctl stop hostapd.service'], shell=True)
+                    output = subprocess.Popen(['sleep 10 ; sudo systemctl stop hostapd.service'], shell=True)
                     return True
                 else:
-                    print(f"current ssid = {current_ssid}")
+                    logger.info(f"current ssid = {current_ssid}")
             cls.remove_network(ssid)
             return False
         except Exception as e:
-            print(e)
+            logger.info(e)
 
 
     @classmethod

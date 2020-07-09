@@ -8,10 +8,15 @@ from .services import Vehicle
 from django.conf import settings
 from rest_framework import status
 import time
+import logging
 
+logger = logging.getLogger("vehicle.view")
 
 # Create your views here.
 def index(request):
+
+    logger.info("alsjkdfjalskdjf")
+    Vehicle.hello()
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
@@ -120,21 +125,21 @@ def finish_first_time(request):
     psk = request.data['psk']
     controller = request.data['controller']
 
-    print(f"{request.data}")
+    logger.debug(f"{request.data}")
 
     try:
         Vehicle.first_time_finish(hostname, ssid, psk, controller)
-        print("finished first time setup")
+        logger.info("finished first time setup")
         if Vehicle.reboot_required:
             Vehicle.reboot()
-            print("sending response - reboot true")
+            logger.info("sending response - reboot true")
             return Response({"reboot": True})
         else:
-            print("sending response - reboot false")
+            logger.info("sending response - reboot false")
             return Response({"reboot": False})
 
     except Exception as e:
-        print(e)
+        logger.error(e)
         from rest_framework import status
         return Response({"error_msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
