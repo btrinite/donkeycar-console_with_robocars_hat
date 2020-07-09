@@ -235,11 +235,12 @@ class Vehicle(object):
             output = subprocess.check_output(['wpa_cli', 'reconfigure', '-i', 'wlan0'])
 
             for i in range(5):
-                subprocess.check_output(['sleep', '2'])
+                subprocess.check_output(['sleep', '3'])
                 current_ssid = cls.get_current_ssid()
                 if (ssid == current_ssid):
+                    print("Wifi connected. Shutting down hotstop")
                     # Delay shutting down the hotspot so that mobile client can receive the http response
-                    output = subprocess.Popen(['sleep 6 ; sudo systemctl stop hostapd.service'], shell=True)
+                    output = subprocess.Popen(['sleep 5 ; sudo systemctl stop hostapd.service'], shell=True)
                     return True
                 else:
                     print(f"current ssid = {current_ssid}")

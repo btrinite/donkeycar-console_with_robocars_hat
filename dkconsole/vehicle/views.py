@@ -131,6 +131,7 @@ def finish_first_time(request):
             return Response({"reboot": False})
 
     except Exception as e:
+        print(e)
         from rest_framework import status
         return Response({"error_msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
