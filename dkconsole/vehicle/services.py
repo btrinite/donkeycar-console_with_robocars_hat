@@ -287,6 +287,7 @@ class Vehicle(object):
 
     @classmethod
     def reboot(cls):
+        print("rebooting in 3 seconds")
         subprocess.Popen(['sleep 3 ; sudo reboot'], shell=True)
 
     @classmethod

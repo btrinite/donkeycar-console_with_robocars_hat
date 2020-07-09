@@ -124,10 +124,13 @@ def finish_first_time(request):
 
     try:
         Vehicle.first_time_finish(hostname, ssid, psk, controller)
+        print("finished first time setup")
         if Vehicle.reboot_required:
             Vehicle.reboot()
+            print("sending response - reboot true")
             return Response({"reboot": True})
         else:
+            print("sending response - reboot false")
             return Response({"reboot": False})
 
     except Exception as e:
