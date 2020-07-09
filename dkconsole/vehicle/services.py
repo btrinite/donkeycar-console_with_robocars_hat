@@ -238,7 +238,8 @@ class Vehicle(object):
                 subprocess.check_output(['sleep', '2'])
                 current_ssid = cls.get_current_ssid()
                 if (ssid == current_ssid):
-                    output = subprocess.Popen(['sleep 2 ; sudo systemctl stop hostapd.service'], shell=True)
+                    # Delay shutting down the hotspot so that mobile client can receive the http response
+                    output = subprocess.Popen(['sleep 6 ; sudo systemctl stop hostapd.service'], shell=True)
                     return True
                 else:
                     print(f"current ssid = {current_ssid}")
