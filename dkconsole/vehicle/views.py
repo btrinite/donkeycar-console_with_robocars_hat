@@ -14,10 +14,7 @@ logger = logging.getLogger("vehicle.view")
 
 # Create your views here.
 def index(request):
-
-    logger.info("alsjkdfjalskdjf")
-    Vehicle.hello()
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return HttpResponse("Hello, world")
 
 
 @api_view(['GET'])
