@@ -8,6 +8,7 @@ class JobSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     train_duration = serializers.SerializerMethodField()
     model_path = serializers.SerializerMethodField()
+    model_movie_path = serializers.SerializerMethodField()
 
     def get_name(self, job):
         return f"Job #{job.id}"
@@ -16,9 +17,14 @@ class JobSerializer(serializers.ModelSerializer):
         return "10 mins"
 
     def get_model_path(self, job):
-
         if job.model_url is not None:
             return settings.MODEL_DIR + f"/job_{job.id}.h5"
+        else:
+            return None
+
+    def get_model_movie_path(self, job):
+        if job.model_url is not None:
+            return settings.MOVIE_DIR + f"/job_{job.id}.mp4"
         else:
             return None
 
@@ -26,7 +32,7 @@ class JobSerializer(serializers.ModelSerializer):
         model = Job
 
         fields = ['id', 'name', 'uuid', 'tub_paths', 'status',  'created_at',
-                  'model_url', 'model_accuracy_url', 'model_path', 'train_duration']
+                  'model_url', 'model_accuracy_url', 'model_path', 'model_movie_path', 'train_duration']
 
         ordering = ['-created']
 

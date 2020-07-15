@@ -12,10 +12,41 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import environ
-import logging
 from pathlib import Path
 
-logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s: %(message)s', level=logging.DEBUG)
+# logging.basicConfig(format='%(asctime)s %(module)s %(name)s %(levelname)s: %(message)s', level=logging.DEBUG)
+
+
+# LOGGING
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#logging
+# See https://docs.djangoproject.com/en/dev/topics/logging for
+# more details on how to customize your logging configuration.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(asctime)s %(name)s "
+            "%(process)d %(thread)d %(levelname)s: %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        }
+    },
+    "root": {"level": "INFO", "handlers": ["console"]},
+    'loggers': {
+        'dkconsole': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        }
+    }
+}
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -144,11 +175,13 @@ REST_FRAMEWORK = {
 
 
 CARAPP_PATH = env.str("CARAPP_PATH")
-DONKEYCAR_DIR= env.str("DONKEYCAR_DIR")
+DONKEYCAR_DIR = env.str("DONKEYCAR_DIR")
 DATA_DIR = CARAPP_PATH + "/data"
+MOVIE_DIR = CARAPP_PATH + "/movies"
 MODEL_DIR = CARAPP_PATH + "/models"
 CONSOLE_DIR = env.str("CONSOLE_DIR")
 
 VENV_PATH = env.str("VENV_PATH")
 WLAN = env.str("WLAN")
 HOTSPOT_IF_NAME = env.str("HOTSPOT_IF_NAME")
+HQ_BASE_URL = env.str("HQ_BASE_URL")

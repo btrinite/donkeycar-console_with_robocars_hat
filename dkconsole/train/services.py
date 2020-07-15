@@ -18,13 +18,16 @@ import subprocess
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 import json
 from rest_framework import status
+import logging
 
+logger = logging.getLogger(__name__)
 
 class TrainService():
     refresh_lock = False
     MODEL_DIR = settings.MODEL_DIR
-    REFRESH_JOB_STATUS_URL = "https://hq.robocarstore.com/train/refresh_job_statuses"
-    SUBMIT_JOB_URL = 'https://hq.robocarstore.com/train/submit_job'
+    MOVIE_DIR = settings.MOVIE_DIR
+    REFRESH_JOB_STATUS_URL = f'{settings.HQ_BASE_URL}/train/refresh_job_statuses'
+    SUBMIT_JOB_URL = f'{settings.HQ_BASE_URL}/train/submit_job'
 
     @classmethod
     def get_jobs(cls):
@@ -58,7 +61,7 @@ class TrainService():
             }
         )
 
-        print("Posting job to HQ")
+        logger.debug("Posting job to HQ")
         r = requests.post(
             cls.SUBMIT_JOB_URL,
             data=mp_encoder,  # The MultipartEncoder is posted as data, don't use files=...!
@@ -107,6 +110,7 @@ class TrainService():
                             job.status = result['status']
                             job.model_url = result['model_url']
                             job.model_accuracy_url = result['model_accuracy_url']
+                            job.model_movie_url = result['model_movie_url']
                             job.save()
 
                             # Background download h5, model accuracy url and etc
@@ -122,9 +126,18 @@ class TrainService():
         print(type(cls.MODEL_DIR))
         cls.download_file(job.model_url,  f"{cls.MODEL_DIR}/job_{job.id}.h5")
         cls.download_file(job.model_accuracy_url, f"{cls.MODEL_DIR}/job_{job.id}.png")
+        # cls.download_file(job.model_myconfig_url, f"{cls.MODEL_DIR}/job_{job.id}.myconfig.py")
+
+        if not os.path.isdir(cls.MOVIE_DIR):
+            logger.info(f"Creating movie folder {cls.MOVIE_DIR}")
+            os.mkdir(cls.MOVIE_DIR)
+
+        cls.download_file(job.model_movie_url, f"{cls.MOVIE_DIR}/job_{job.id}.mp4")
+        # cls.download_file()
 
     @classmethod
     def download_file(cls, url, target_path):
+        logger.debug(f"Downloading file from {url} to {target_path}")
         command = ["curl", url, "--output", target_path]
         proc = subprocess.Popen(command)
 

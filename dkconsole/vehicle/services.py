@@ -15,7 +15,7 @@ from django.conf import settings
 
 from dkconsole.model.services import MLModelService
 
-logger = logging.getLogger("vehicle.service")
+logger = logging.getLogger(__name__)
 
 class Vehicle(object):
     # def __init__(self, **kwargs):
@@ -33,7 +33,7 @@ class Vehicle(object):
     def build_calibrate_command(cls):
         command = [f"{cls.venv_path}/python", f"{cls.carapp_path}/calibrate.py".format(cls.carapp_path), "drive"]
 
-        print(" ".join(command))
+        logger.debug(" ".join(command))
 
         return command
 
@@ -202,7 +202,9 @@ class Vehicle(object):
 
     @classmethod
     def update_console_software(cls):
-        verbose = subprocess.check_output(['git', 'pull'], cwd=settings.CONSOLE_DIR)
+        output = subprocess.check_output(['git', 'pull'], cwd=settings.CONSOLE_DIR)
+        output = subprocess.check_output(['python', 'manage.py', 'migrate'], cwd=settings.CONSOLE_DIR)
+
         subprocess.Popen(['sleep 2 ; sudo service gunicorn restart'], shell=True)
         output = verbose.decode('utf-8')
         return output
@@ -482,11 +484,22 @@ class Vehicle(object):
                 "MM1_STOPPED_PWM": {"dtype": "int", "default": 1500}
             },
             "Camera": {
+                "CAMERA_TYPE":  {
+                    "dtype": "mc",
+                    "choices": ['PICAM', 'WEBCAM', 'CSIC', 'MOCK']
+                },
                 "IMAGE_W": {"dtype": "int", "default": 160},
                 "IMAGE_H": {"dtype": "int", "default": 120},
+            },
+            "Training": {
                 "ROI_CROP_TOP": {"dtype": "int", "default": 0},
                 "ROI_CROP_BOTTOM": {"dtype": "int", "default": 0},
+                "DEFAULT_MODEL_TYPE": {
+                    "dtype": "mc",
+                    "choices": ['linear', 'categorical', 'rnn', 'imu', 'behavior', '3d', 'localizer', 'latent']
+                }
             }
+
         }
 
         data = cls.read_value_from_config(data)

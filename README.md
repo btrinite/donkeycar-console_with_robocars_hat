@@ -55,3 +55,10 @@ python manage.py runserver 0.0.0.0:8000
 
 
 1. Change .env_pc according to your PC.
+
+
+#### Run test case
+
+```
+pytest -s -v dkconsole/data/test_service.py -k test_xxx
+```

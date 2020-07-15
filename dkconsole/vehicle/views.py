@@ -10,19 +10,11 @@ from rest_framework import status
 import time
 import logging
 
-logger = logging.getLogger("vehicle.view")
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 def index(request):
     return HttpResponse("Hello, world")
-
-
-@api_view(['GET'])
-def block(request):
-    # This function does nothing but block the thread. For testing gunicorn worker setting
-    time.sleep(60)
-    return Response({"status": "blocked 1 seconds"})
-
 
 @api_view(['POST'])
 def start_driving(request):

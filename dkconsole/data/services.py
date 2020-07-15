@@ -90,6 +90,7 @@ class TubService():
             for tub_path in tub_paths:
                 p = Path(tub_path)
                 tar.add(p, arcname=p.name)
+            tar.add(f"{settings.CARAPP_PATH}/myconfig.py", arcname="myconfig.py")
 
         f.close()
 
@@ -136,7 +137,7 @@ class TubService():
     @classmethod
     def gen_movie(cls, tub_name):
         tub_path = Path(settings.DATA_DIR) / tub_name
-        videoPath = tub_path / "tub_movie.mp4"
+        videoPath = Path(settings.MOVIE_DIR) / f"{tub_name}.mp4"
         if (not os.path.exists(videoPath)):
             command = [f'{settings.VENV_PATH}/donkey', 'makemovie', f'--tub={tub_path}', f'--out={videoPath}']
             subprocess.check_output(command, cwd=settings.CARAPP_PATH)

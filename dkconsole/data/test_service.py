@@ -17,7 +17,7 @@ from django.utils.timezone import make_aware
 class TestTubService(TestCase):
 
     def setUp(self):
-        self.data_dir = Path(__file__).parent.absolute() / "test_data"
+        self.data_dir = settings.DATA_DIR
         self.tub_path = self.data_dir / "tub_18_19-04-06"
 
     def test_get_tubs(self):
@@ -81,12 +81,8 @@ class TestTubService(TestCase):
     def test_gen_movie(self):
         tub_name = "tub_2_20-03-30"
         videoPath = TubService.gen_movie(tub_name)
-        assert videoPath == self.data_dir / tub_name / "tub_movie.mp4"
+        assert videoPath == settings.MOVIE_DIR / f"{tub_name}.mp4"
         assert os.path.exists(videoPath) is True
-
-        # videoPath = TubService.gen_movie(tub_name)
-        # assert mock_method.assert_called_once_with(tub_name)
-        # assert videoPath == self.data_dir / tub_name / "tub_movie.mp4"
 
     def test_get_detail(self):
         tub_name = "tub_18_19-04-06"
