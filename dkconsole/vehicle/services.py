@@ -17,6 +17,7 @@ from dkconsole.model.services import MLModelService
 
 logger = logging.getLogger(__name__)
 
+
 class Vehicle(object):
     # def __init__(self, **kwargs):
     #     for field in ('id', 'name', 'owner', 'status'):
@@ -207,6 +208,11 @@ class Vehicle(object):
         return output
 
     @classmethod
+    def set_wpa_country(cls, country_code):
+        subprocess.check_output(['wpa_cli', 'set', f'country={country_code}'])
+        output = subprocess.check_output(['wpa_cli', 'save_config'])
+
+    @classmethod
     def add_network(cls, ssid, password):
         try:
             print(f"adding network {ssid} {password}")
@@ -334,9 +340,12 @@ class Vehicle(object):
             json.dump(output, f)
 
     @classmethod
-    def first_time_finish(cls, hostname, ssid, psk, controller):
+    def first_time_finish(cls, hostname, ssid, psk, controller, country_code):
         if controller is not None:
             cls.update_config(controller)
+
+        if country_code:
+            cls.set_wpa_country(country_code)
 
         if ssid is not None:
             wifi = cls.add_network(ssid, psk)
@@ -409,7 +418,6 @@ class Vehicle(object):
         ''' convenient method for unit testing patching '''
         f.writelines(lines)
         # f.writ
-
 
     @classmethod
     def replace_all_keys_in_lines(cls, lines, config_data, flattened_map):
@@ -503,7 +511,6 @@ class Vehicle(object):
 
         return data
 
-
     @classmethod
     def is_number(cls, s):
         try:
@@ -534,7 +541,6 @@ class Vehicle(object):
                     value = value_str
 
         return value
-
 
     @classmethod
     def read_value_from_config(cls, config):
@@ -605,7 +611,6 @@ class Vehicle(object):
             print(e)
             return 0
 
-
     @classmethod
     def calculate_battery_percentage(cls, current_voltage):
         max_voltage = 8.4
@@ -614,10 +619,6 @@ class Vehicle(object):
         battery_level = int((current_voltage - min_voltage) / (max_voltage - min_voltage) * 100)
 
         return battery_level
-
-
         # print("Bus Voltage:   {} V".format())
         # print("Shunt Voltage: {} mV".format(ina219.shunt_voltage / 1000))
         # print("Current:       {} mA".format(ina219.current))
-
-

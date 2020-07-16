@@ -113,8 +113,11 @@ def finish_first_time(request):
     ssid = request.data['ssid']
     psk = request.data['psk']
     controller = request.data['controller']
+    country_code = request.data['country']
 
     logger.debug(f"{request.data}")
+
+    return Response({"reboot": True})
 
     try:
         Vehicle.first_time_finish(hostname, ssid, psk, controller)
