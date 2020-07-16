@@ -55,7 +55,6 @@ env = environ.Env()
 
 ROOT_DIR = Path(__file__).parents[2]
 
-env.read_env(str(ROOT_DIR / ".env"))
 if os.uname()[4] == 'armv7l':
     env.read_env(str(ROOT_DIR / ".env_pi4"))
 else:
