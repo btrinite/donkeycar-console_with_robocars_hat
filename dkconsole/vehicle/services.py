@@ -202,9 +202,6 @@ class Vehicle(object):
 
     @classmethod
     def update_console_software(cls):
-        output = subprocess.check_output(['git', 'pull'], cwd=settings.CONSOLE_DIR)
-        output = subprocess.check_output([f'{settings.DCONSOLE_VENV_PATH}/python', 'manage.py', 'migrate'], cwd=settings.CONSOLE_DIR)
-
         subprocess.Popen(['sleep 2 ; sudo service gunicorn restart'], shell=True)
         output = verbose.decode('utf-8')
         return output
