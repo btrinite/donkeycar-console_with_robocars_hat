@@ -13,7 +13,9 @@ import errno
 from PIL import Image
 import subprocess
 import re
+import logging
 
+logger = logging.getLogger(__name__)
 
 class TubService():
     @classmethod
@@ -29,28 +31,39 @@ class TubService():
 
     @classmethod
     def get_tub_method(cls, tub_path):
+        logger.debug(tub_path)
+        if not (type(tub_path) is Path):
+            tub_path = Path(tub_path)
+
         meta_json_path = cls.get_meta_json_path(tub_path)
         first_jpg_name = cls.get_thumbnail_name(tub_path)
         width, height = cls.get_image_resolution(tub_path)
-        size = cls.get_size(tub_path)
 
         with open(meta_json_path) as f:
             meta = json.load(f)
-            # print(meta)
-            created_at = make_aware(datetime.fromtimestamp(meta['start']))
 
-            if 'no_of_images' in meta:
-                no_of_images = meta['no_of_images']
-            else:
-                no_of_images = cls.get_jpg_file_count_on_disk(tub_path)
-            if 'rating' in meta:
-                rating = meta['rating']
-            else:
-                rating = 0
+        created_at = make_aware(datetime.fromtimestamp(meta['start']))
 
-            tub_image = TubImage(first_jpg_name, width, height)
+        if 'size' in meta:
+            size = meta['size']
+        else:
+            size = cls.get_size(tub_path)
+            cls.update_meta(tub_path.name, [f"size: {size}"])
 
-            return Tub(tub_path.name, tub_path, created_at, no_of_images, tub_image, size, rating)
+        if 'no_of_images' in meta:
+            no_of_images = meta['no_of_images']
+        else:
+            no_of_images = cls.get_jpg_file_count_on_disk(tub_path)
+            cls.update_meta(tub_path.name, [f"no_of_images: {no_of_images}"])
+
+        if 'rating' in meta:
+            rating = meta['rating']
+        else:
+            rating = 0
+
+        tub_image = TubImage(first_jpg_name, width, height)
+
+        return Tub(tub_path.name, tub_path, created_at, no_of_images, tub_image, size, rating)
 
     @classmethod
     def get_size(cls, tub_path):
@@ -79,6 +92,7 @@ class TubService():
 
     @classmethod
     def get_jpg_file_count_on_disk(cls, tub_path):
+        logger.debug(f"get_jpg_file_count_on_disk {tub_path}")
         return len([f for f in os.listdir(tub_path) if f.endswith('.jpg')])
 
     @classmethod

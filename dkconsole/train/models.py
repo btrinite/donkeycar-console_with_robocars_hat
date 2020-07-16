@@ -26,6 +26,7 @@ class Job(models.Model):
         #   choices=[(tag, tag.value) for tag in JobStatus]  # Choices is a list of Tuple
     )
     created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
     model_size = models.FloatField(null=True, blank=True)
     model_url = models.CharField(max_length=2000, null = True)
     model_accuracy_url = models.CharField(max_length=2000, null = True)

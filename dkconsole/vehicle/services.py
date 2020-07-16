@@ -497,9 +497,9 @@ class Vehicle(object):
                 "DEFAULT_MODEL_TYPE": {
                     "dtype": "mc",
                     "choices": ['linear', 'categorical', 'rnn', 'imu', 'behavior', '3d', 'localizer', 'latent']
-                }
+                },
+                "BATCH_SIZE": {"dtype": "int", "default": 128}
             }
-
         }
 
         data = cls.read_value_from_config(data)
