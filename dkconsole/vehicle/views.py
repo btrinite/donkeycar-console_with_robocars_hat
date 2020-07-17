@@ -118,7 +118,7 @@ def finish_first_time(request):
     logger.debug(f"{request.data}")
 
     try:
-        Vehicle.first_time_finish(hostname, ssid, psk, controller)
+        Vehicle.first_time_finish(hostname, ssid, psk, controller, country_code)
         logger.info("finished first time setup")
         if Vehicle.reboot_required:
             Vehicle.reboot()
