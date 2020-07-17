@@ -62,3 +62,6 @@ python manage.py runserver 0.0.0.0:8000
 ```
 pytest -s -v dkconsole/data/test_service.py -k test_xxx
 ```
+
+# Commercial Use
+If you intend to use this project for making money, you must obtain our consent before you do so. Contact us at sales@robocarstore.com
