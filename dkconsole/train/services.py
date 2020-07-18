@@ -138,7 +138,7 @@ class TrainService():
     @classmethod
     def download_file(cls, url, target_path):
         logger.debug(f"Downloading file from {url} to {target_path}")
-        command = ["curl", url, "--output", target_path]
+        command = ["curl", "--fail", url, "--output", target_path]
         proc = subprocess.Popen(command)
 
     @classmethod
