@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Job, JobStatus
 from django.conf import settings
-
+import os
 
 class JobSerializer(serializers.ModelSerializer):
 
@@ -23,8 +23,10 @@ class JobSerializer(serializers.ModelSerializer):
             return None
 
     def get_model_movie_path(self, job):
-        if job.model_url is not None:
-            return settings.MOVIE_DIR + f"/job_{job.id}.mp4"
+        model_movie_path = settings.MOVIE_DIR + f"/job_{job.id}.mp4"
+
+        if os.path.isfile(model_movie_path):
+            return model_movie_path
         else:
             return None
 

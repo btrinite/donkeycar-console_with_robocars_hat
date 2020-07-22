@@ -195,7 +195,10 @@ class Vehicle(object):
 
     @classmethod
     def update_donkey_software(cls):
-        verbose = subprocess.check_output(['git', 'pull'], cwd=settings.DONKEYCAR_DIR)
+        try:
+            verbose = subprocess.check_output(['git', 'pull'], cwd=settings.DONKEYCAR_DIR)
+        except Exception as e:
+            logging.exception(e)
         command = [f"{cls.venv_path}/donkey createcar --path {settings.CARAPP_PATH} --overwrite"]
         verbose = subprocess.check_output(command, shell=True)
         output = verbose.decode('utf-8')
