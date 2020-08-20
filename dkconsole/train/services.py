@@ -159,3 +159,13 @@ class TrainService():
             jobWillDelete = Job.objects.get(id=id)
             jobWillDelete.delete()
 
+    @classmethod
+    def get_model_movie_path(cls, job_id):
+        job = Job.objects.get(id=job_id)
+
+        model_movie_path = settings.MOVIE_DIR + f"/job_{job.id}.mp4"
+
+        if os.path.isfile(model_movie_path):
+            return model_movie_path
+        else:
+            return None

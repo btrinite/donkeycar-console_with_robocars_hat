@@ -10,6 +10,7 @@ from .services import TrainService
 from .serializers import SubmitJobSerializer
 from rest_framework import status
 from dkconsole.train.models import Job, JobStatus
+from dkconsole.util import *
 
 # Create your views here.
 
@@ -63,3 +64,9 @@ def delete_jobs(request):
     TrainService.delete_jobs(job_ids)
     return Response({"success": True})
 
+
+def stream_video(request, job_id):
+    path = (TrainService.get_model_movie_path(job_id))
+
+    resp = video_stream(request, path)
+    return resp

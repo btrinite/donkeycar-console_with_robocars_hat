@@ -16,7 +16,6 @@ from pathlib import Path
 
 # logging.basicConfig(format='%(asctime)s %(module)s %(name)s %(levelname)s: %(message)s', level=logging.DEBUG)
 
-
 # LOGGING
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
@@ -55,10 +54,16 @@ env = environ.Env()
 
 ROOT_DIR = Path(__file__).parents[2]
 
-if os.uname()[4] == 'armv7l':
-    env.read_env(str(ROOT_DIR / ".env_pi4"))
+if (env.str('mode', None) == 'sim'):
+    print("loading form .env_sim")
+    env.read_env(str(ROOT_DIR / ".env_sim"))
 else:
-    env.read_env(str(ROOT_DIR / ".env_pc"))
+    if os.uname()[4] == 'armv7l':
+        print("loading form .env_pi4")
+        env.read_env(str(ROOT_DIR / ".env_pi4"))
+    else:
+        print("loading form .env_pc")
+        env.read_env(str(ROOT_DIR / ".env_pc"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/

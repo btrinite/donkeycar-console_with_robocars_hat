@@ -212,8 +212,11 @@ class Vehicle(object):
 
     @classmethod
     def set_wpa_country(cls, country_code):
-        subprocess.check_output(['wpa_cli', 'set', f'country={country_code}'])
-        output = subprocess.check_output(['wpa_cli', 'save_config'])
+        try:
+            subprocess.check_output(['wpa_cli', 'set', f'country={country_code}'])
+            output = subprocess.check_output(['wpa_cli', 'save_config'])
+        except Exception as e:
+            logger.error("Cannot set wpa_cli country", e)
 
     @classmethod
     def add_network(cls, ssid, password):
