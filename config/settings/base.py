@@ -54,9 +54,9 @@ env = environ.Env()
 
 ROOT_DIR = Path(__file__).parents[2]
 
-if (env.str('mode', None) == 'sim'):
-    print("loading form .env_sim")
-    env.read_env(str(ROOT_DIR / ".env_sim"))
+if (env.str('mode', None) == 'docker'):
+    print("loading form .env_docker")
+    env.read_env(str(ROOT_DIR / ".env_docker"))
 else:
     if os.uname()[4] == 'armv7l':
         print("loading form .env_pi4")
@@ -177,7 +177,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-
+MODE = env.str('mode', None) 
 CARAPP_PATH = env.str("CARAPP_PATH")
 DONKEYCAR_DIR = env.str("DONKEYCAR_DIR")
 DATA_DIR = CARAPP_PATH + "/data"

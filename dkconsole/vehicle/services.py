@@ -29,6 +29,7 @@ class Vehicle(object):
     proc = None
     calibrate_proc = None
     reboot_required = False
+    mode = settings.MODE
 
     @classmethod
     def build_calibrate_command(cls):
@@ -94,9 +95,13 @@ class Vehicle(object):
         print("start driving")
         command = cls.build_drive_command(use_joystick, None, tub_meta)
 
-        with open(cls.carapp_path + "/drive.log", 'w') as log:
-            cls.proc = subprocess.Popen(command, stdout=log)
-            print(f"cls.proc = {cls.proc}")
+        if cls.mode == "docker":
+            cls.proc = subprocess.Popen(command)
+        else:
+            with open(cls.carapp_path + "/drive.log", 'w') as log:
+                cls.proc = subprocess.Popen(command, stdout=log)
+
+        print(f"cls.proc = {cls.proc}")
 
         return cls.proc.pid
 
@@ -143,6 +148,9 @@ class Vehicle(object):
     def get_wlan_ip_address(cls):
         addrs = cls.get_addrs(settings.WLAN)
 
+        if addrs is None:
+            return None
+
         if (netifaces.AF_INET in addrs) and (len(addrs[netifaces.AF_INET]) == 1):
             return addrs[netifaces.AF_INET][0]['addr']
         else:
@@ -151,6 +159,9 @@ class Vehicle(object):
     @classmethod
     def get_wlan_mac_address(cls):
         addrs = cls.get_addrs(settings.WLAN)
+
+        if addrs is None:
+            return None
 
         if (netifaces.AF_LINK in addrs) and (len(addrs[netifaces.AF_LINK]) == 1):
             return addrs[netifaces.AF_LINK][0]['addr']
@@ -161,6 +172,9 @@ class Vehicle(object):
     def is_wlan_connected(cls):
         addrs = cls.get_addrs(settings.WLAN)
 
+        if addrs is None:
+            return False
+
         if netifaces.AF_INET in addrs:
             return True
         else:
@@ -170,6 +184,9 @@ class Vehicle(object):
     def is_hotspot_on(cls):
         addrs = cls.get_addrs(settings.HOTSPOT_IF_NAME)
 
+        if addrs is None:
+            return False
+
         if netifaces.AF_INET in addrs:
             return True
         else:
@@ -178,6 +195,9 @@ class Vehicle(object):
     @classmethod
     def get_hotspot_ip_address(cls):
         addrs = cls.get_addrs(settings.HOTSPOT_IF_NAME)
+
+        if addrs is None:
+            return None
 
         if (netifaces.AF_INET in addrs) and (len(addrs[netifaces.AF_INET]) == 1):
             return addrs[netifaces.AF_INET][0]['addr']
@@ -189,7 +209,8 @@ class Vehicle(object):
         interfaces = netifaces.interfaces()
 
         if interface not in interfaces:
-            raise Exception(f"Network interface is not properly configured. {interface} does not exists.")
+            logger.error(f"Network interface is not properly configured. {interface} does not exists.")
+            return None
 
         return netifaces.ifaddresses(interface)
 
@@ -351,6 +372,7 @@ class Vehicle(object):
             cls.update_config(controller)
 
         if country_code:
+            logger.info("Setting wpa_country ${country_code}")
             cls.set_wpa_country(country_code)
 
         if ssid is not None:
