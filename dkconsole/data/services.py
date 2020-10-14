@@ -151,6 +151,11 @@ class TubService():
     @classmethod
     def gen_movie(cls, tub_name):
         tub_path = Path(settings.DATA_DIR) / tub_name
+
+        # Create movie directory if not exists
+        if (not os.path.exists(settings.MOVIE_DIR)):
+            os.mkdir(settings.MOVIE_DIR)
+
         videoPath = Path(settings.MOVIE_DIR) / f"{tub_name}.mp4"
         if (not os.path.exists(videoPath)):
             command = [f'{settings.VENV_PATH}/donkey', 'makemovie', f'--tub={tub_path}', f'--out={videoPath}']
