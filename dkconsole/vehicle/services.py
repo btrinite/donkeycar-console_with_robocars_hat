@@ -393,7 +393,7 @@ class Vehicle(object):
         print("Scanning network")
         subprocess.check_output(['wpa_cli', 'scan', '-i', 'wlan0'])
         results = subprocess.check_output(
-            ["sleep 4 ; wpa_cli -i wlan0 scan_results | awk '{ print $5 }'"], shell=True)
+            ["sleep 5 ; wpa_cli -i wlan0 scan_results | awk '{ print $5 }'"], shell=True)
         print(results)
 
         available_networks = set()
