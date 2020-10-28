@@ -49,6 +49,7 @@ def stop_driving(request):
 def status(request):
     hostname = Vehicle.get_hostname()
     carapp_path = Vehicle.carapp_path
+
     return Response({"hostname": hostname,
                      "carapp_path": carapp_path,
                      "wlan_ip_address": Vehicle.get_wlan_ip_address(),
@@ -58,7 +59,8 @@ def status(request):
                      "hotspot_ip_address": Vehicle.get_hotspot_ip_address(),
                      "isFirstTime": Vehicle.first_time(),
                      "current_ssid": Vehicle.get_current_ssid(),
-                     "battery_level": Vehicle.battery_level_in_percentage()
+                     "battery_level": Vehicle.battery_level_in_percentage(),
+                     "web_controller_port": Vehicle.get_web_controller_port()
                      })
 
 

@@ -30,6 +30,7 @@ class Vehicle(object):
     calibrate_proc = None
     reboot_required = False
     mode = settings.MODE
+    web_controller_port = 8887
 
     @classmethod
     def build_calibrate_command(cls):
@@ -650,3 +651,18 @@ class Vehicle(object):
         # print("Bus Voltage:   {} V".format())
         # print("Shunt Voltage: {} mV".format(ina219.shunt_voltage / 1000))
         # print("Current:       {} mA".format(ina219.current))
+
+    @classmethod
+    def get_web_controller_port(cls):
+        try:
+            import donkeycar as dk
+            config_path = f"{Vehicle.carapp_path}/config.py"
+            cfg = dk.load_config(config_path=config_path)
+            cls.web_controller_port = cfg.WEB_CONTROL_PORT
+        except:
+            pass
+
+        return cls.web_controller_port
+
+
+
