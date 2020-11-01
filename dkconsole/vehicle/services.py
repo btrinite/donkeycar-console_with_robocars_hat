@@ -23,6 +23,8 @@ class Vehicle(object):
     #     for field in ('id', 'name', 'owner', 'status'):
     #         setattr(self, field, kwargs.get(field, None))
 
+    MODE_DOCKER = "docker"
+
     pid = None
     carapp_path = settings.CARAPP_PATH
     venv_path = settings.VENV_PATH
@@ -96,7 +98,7 @@ class Vehicle(object):
         print("start driving")
         command = cls.build_drive_command(use_joystick, None, tub_meta)
 
-        if cls.mode == "docker":
+        if cls.mode == cls.MODE_DOCKER:
             cls.proc = subprocess.Popen(command)
         else:
             with open(cls.carapp_path + "/drive.log", 'w') as log:
@@ -159,6 +161,9 @@ class Vehicle(object):
 
     @classmethod
     def get_wlan_mac_address(cls):
+        if (cls.mode == cls.MODE_DOCKER):
+            return "docker"
+
         addrs = cls.get_addrs(settings.WLAN)
 
         if addrs is None:
@@ -210,7 +215,7 @@ class Vehicle(object):
         interfaces = netifaces.interfaces()
 
         if interface not in interfaces:
-            logger.error(f"Network interface is not properly configured. {interface} does not exists.")
+            # logger.error(f"Network interface is not properly configured. {interface} does not exists.")
             return None
 
         return netifaces.ifaddresses(interface)

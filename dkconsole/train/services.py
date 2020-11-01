@@ -22,6 +22,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class TrainService():
     refresh_lock = False
     MODEL_DIR = settings.MODEL_DIR
@@ -33,8 +34,8 @@ class TrainService():
     def get_jobs(cls):
         try:
             cls.refresh_all_job_status()
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
         jobs = Job.objects.all()
         return jobs
