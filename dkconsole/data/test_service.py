@@ -3,7 +3,8 @@ from .services import TubService
 import pytest
 import os
 from .models import Tub
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
+
 from pathlib import Path
 from django.conf import settings
 import tarfile
@@ -19,6 +20,7 @@ class TestTubService(TestCase):
     def setUp(self):
         self.data_dir = settings.DATA_DIR
         self.tub_path = self.data_dir / "tub_18_19-04-06"
+        print(f"self.data_dir = ${self.data_dir}")
 
     def test_get_tubs(self):
         tubs = TubService.get_tubs()
@@ -40,7 +42,9 @@ class TestTubService(TestCase):
         archive_path = TubService.generate_tub_archive(tub_paths)
 
         tar = tarfile.open(archive_path, mode="r:gz")
-        assert 10675 == len(tar.getmembers())
+
+        # +2 because myconfig.py and current directory
+        assert 10675 + 2 == len(tar.getmembers())
         tar.close()
 
     def test_delete_tub(self):
@@ -51,32 +55,25 @@ class TestTubService(TestCase):
         mock_method.assert_called_once_with(tub_dir / "tub_1_20-03-30")
 
     def test_get_thumbnails(self):
-        assert TubService.get_thumbnail_name(self.tub_path) == self.tub_path / '1_cam-image_array_.jpg'
+        # assert TubService.get_thumbnail_name(self.tub_path) == self.tub_path / '1_cam-image_array_.jpg'
+        assert TubService.get_thumbnail_name(self.tub_path) == '1_cam-image_array_.jpg'
 
     def test_get_image_resolution(self):
         assert TubService.get_image_resolution(self.tub_path) == (160, 120)
 
     def test_delete_tubs(self):
-        # with patch('shutil.rmtree') as mock_method:
-        #     TubService.delete_tubs(0)
+        with patch('shutil.rmtree') as mock_method:
+            TubService.delete_tubs(0)
 
-        #     assert mock_method.call_count == 12
+            assert mock_method.call_count == 12
 
         with patch('shutil.rmtree') as mock_method:
             TubService.delete_tubs(99999)
 
-            assert mock_method.call_count == 12
-
-        # with self.assertRaises(FileNotFoundError) as context:
-        #     MLModelService.delete_model("non-exist-model.h5")
+            assert mock_method.call_count == 14
 
     # def test_add_new_tubs(self):
     #     TubService.add_new_tubs()
-
-    # def test_read_meta_file():
-    #     meta_data = MetaFileService().read_console_meta_file(tub_path)
-    #     assert meta_data['name'] == 'tub_18_19-04-06'
-    #     assert meta_data['no'] == 5336
 
     def test_gen_movie(self):
         tub_name = "tub_2_20-03-30"
@@ -93,13 +90,13 @@ class TestTubService(TestCase):
 
     def test_get_latest(self):
         latest = TubService.get_latest()
-        assert latest.name == "tub_2_20-03-30"
+        assert latest.name == "tub_18_19-04-06"
 
     def test_get_size(self):
         tub_name = "tub_18_19-04-06"
         path = self.data_dir / tub_name
         total_size = TubService.get_size(path)
-        assert total_size == 0
+        assert total_size == 18.58
 
     def test_gen_histogram(self):
         tub_name = "tub_18_19-04-06"
@@ -113,6 +110,9 @@ class TestTubService(TestCase):
         assert meta.no_of_images == 5336
 
     def test_update_meta(self):
-        tub_name = "tub_18_19-04-06"
-        update = TubService.update_meta(tub_name, ['123: test'])
-        assert update['123'] == "test"
+        data = '{"a": 1, "b": 2}'
+
+        with patch("builtins.open", mock_open(read_data=data)) as mock_file:
+            meta = TubService.update_meta("some_tub", {"b": 4, 'c': "asdfa", "d": 5})
+            assert meta == {'a': 1, 'b': 4, 'c': 'asdfa', 'd': 5}
+

@@ -155,6 +155,13 @@ def update_meta(request, tub_name):
     '''
     {"update_parms":["123: 123"]}
     '''
-    update_parms = request.data["update_parms"]
-    TubService.update_meta(tub_name, update_parms)
-    return Response({"success": True})
+    data = request.data["update_parms"]
+
+    if (data):
+        # Transform the input param. Input param should not be a string. It should be a dict. Let's fix this later
+
+        update_parms = dict([i.split(':') for i in data])
+        TubService.update_meta(tub_name, update_parms)
+        return Response({"success": True})
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)

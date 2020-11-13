@@ -48,13 +48,14 @@ class TubService():
             size = meta['size']
         else:
             size = cls.get_size(tub_path)
-            cls.update_meta(tub_path.name, [f"size: {size}"])
+            cls.update_meta(tub_path.name, {"size": size})
 
-        if 'no_of_images' in meta:
+        # if 'no_of_images' in meta:
+        if False:
             no_of_images = meta['no_of_images']
         else:
             no_of_images = cls.get_jpg_file_count_on_disk(tub_path)
-            cls.update_meta(tub_path.name, [f"no_of_images: {no_of_images}"])
+            cls.update_meta(tub_path.name, {"no_of_images": no_of_images})
 
         if 'rating' in meta:
             rating = meta['rating']
@@ -234,14 +235,8 @@ class TubService():
         with open(meta_json_path) as f:
             meta = json.load(f)
             update = meta.copy()
-            parms = dict([i.split(':') for i in update_parms])
-            dict_parms = dict((k, v) for k, v in parms.items())
-            for key in dict_parms:
-                for meta_items in meta:
-                    if (re.match(key, meta_items)):
-                        update[meta_items] = dict_parms[key]
-                    else:
-                        update[key] = dict_parms[key]
+            update = {**meta, **update_parms}   # Merge the dict
+
         output = open(meta_json_path, "w+")
         json.dump(update, output)
         output.close

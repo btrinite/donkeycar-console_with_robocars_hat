@@ -1,0 +1,10 @@
+language: python # => 1
+    python: # => 3
+      - "3.6"
+      - "3.7"
+    install: # => 5
+      - pip install -r requirements/local.txt
+    before_script: # => 6
+      - python manage.py migrate
+    script: # => 7
+      - pytest -v dkconsole/data/test_service.py
