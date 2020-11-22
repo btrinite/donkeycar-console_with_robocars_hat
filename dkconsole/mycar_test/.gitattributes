@@ -1,0 +1,15 @@
+data/tub_6_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_10_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_1_20-03-30 filter=lfs diff=lfs merge=lfs -text
+data/tub_12_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_18_19-04-06 filter=lfs diff=lfs merge=lfs -text
+data/tub_2_20-03-30 filter=lfs diff=lfs merge=lfs -text
+data/tub_3_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_5_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_8_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_11_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_4_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_13_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_7_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/tub_9_20-03-31 filter=lfs diff=lfs merge=lfs -text
+data/test.sh filter=lfs diff=lfs merge=lfs -text
