@@ -31,6 +31,8 @@ class TrainService():
     SUBMIT_JOB_URL = f'{settings.HQ_BASE_URL}/train/submit_job'
 
     vehicle_service = factory.create('vehicle_service')
+    tub_service = factory.create('tub_service')
+
 
     @classmethod
     def get_jobs(cls):
@@ -53,13 +55,13 @@ class TrainService():
 
     @classmethod
     def submit_job(cls, tub_paths):
-        job = TrainService.create_job(tub_paths)
+        job = cls.create_job(tub_paths)
 
-        filename = TubService.generate_tub_archive(tub_paths)
+        filename = cls.tub_service.generate_tub_archive(tub_paths)
 
         mp_encoder = MultipartEncoder(
             fields={
-                'device_id': vehicle_service.get_wlan_mac_address(),
+                'device_id': cls.vehicle_service.get_wlan_mac_address(),
                 'tub_archive_file': ('file.tar.gz', open(filename, 'rb'), 'application/gzip'),
             }
         )

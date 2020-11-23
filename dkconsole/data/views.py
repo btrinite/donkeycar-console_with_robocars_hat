@@ -12,9 +12,13 @@ from django.conf import settings
 from PIL import Image
 
 import os
+from rest_framework import status
 from dkconsole.util import *
+from dkconsole.service_factory import factory
 
 # Create your views here.
+
+tub_service = factory.create('tub_service')
 
 
 @api_view(['GET'])
@@ -22,7 +26,7 @@ def index(request):
 
     # for name in os.listdir(tub_path()):
     #     print(name)
-    tubs = TubService.get_tubs()
+    tubs = tub_service.get_tubs()
 
     serializer = TubSerializer(tubs, many=True)
     return Response(serializer.data)
@@ -31,7 +35,7 @@ def index(request):
 @api_view(['GET'])
 def tub_archive(request, tub_name):
     tub_paths = [Path(settings.DATA_DIR) / tub_name]
-    archive_path = TubService.generate_tub_archive(tub_paths)
+    archive_path = tub_service.generate_tub_archive(tub_paths)
 
     if os.path.exists(archive_path):
         with open(archive_path, 'rb') as fh:
@@ -46,7 +50,7 @@ def delete(request):
     try:
         tub_path = request.data['tub_path']
 
-        TubService.delete_tub(tub_path)
+        tub_service.delete_tub(tub_path)
 
         return Response({"success": True})
     except Exception as e:
@@ -84,7 +88,7 @@ def delete_tubs(request):
     try:
         number_of_images = request.data['number_of_images']
 
-        TubService.delete_tubs(number_of_images)
+        tub_service.delete_tubs(number_of_images)
 
         return Response({"success": True})
     except Exception as e:
@@ -93,22 +97,22 @@ def delete_tubs(request):
 
 
 def stream_video(request, tub_name):
-    path = str(TubService.gen_movie(tub_name))
+    path = str(tub_service.gen_movie(tub_name))
     resp = video_stream(request, path)
     return resp
 
 
 @api_view(['GET'])
 def detail(requst, tub_name):
-    tub = TubService.get_detail(tub_name)
+    tub = tub_service.get_detail(tub_name)
     serializer = TubSerializer(tub)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 def latest(requst):
-    latest = TubService.get_latest()
-    # tub = TubService.get_detail(TubService.get_latest())
+    latest = tub_service.get_latest()
+
     print(latest)
     serializer = TubSerializer(latest)
     return Response(serializer.data)
@@ -120,7 +124,7 @@ def histogram(requst, tub_name):
     http://localhost:8000/data/tub_9_20-01-10/tub_9_20-01-10_hist.png
     '''
     try:
-        TubService.gen_histogram(Path(settings.DATA_DIR) / tub_name)
+        tub_service.gen_histogram(Path(settings.DATA_DIR) / tub_name)
         histogram_name = tub_name + "_hist.png"
         image_file_path = Path(settings.DATA_DIR) / tub_name / histogram_name
         return FileResponse(open(image_file_path, 'rb'))
@@ -134,8 +138,8 @@ def latest_histogram(requst):
     http://localhost:8000/data/tub_9_20-01-10/tub_9_20-01-10_hist.png
     '''
     try:
-        latest = TubService.get_latest()
-        TubService.gen_histogram(Path(settings.DATA_DIR) / latest.name)
+        latest = tub_service.get_latest()
+        tub_service.gen_histogram(Path(settings.DATA_DIR) / latest.name)
         histogram_name = latest.name + "_hist.png"
         image_file_path = Path(settings.DATA_DIR) / latest.name / histogram_name
         return FileResponse(open(image_file_path, 'rb'))
@@ -145,7 +149,7 @@ def latest_histogram(requst):
 
 @api_view(['GET'])
 def show_meta(request, tub_name):
-    meta = TubService.get_meta(tub_name)
+    meta = tub_service.get_meta(tub_name)
     serializer = MetaSerializer(meta)
     return Response(serializer.data)
 
@@ -161,7 +165,7 @@ def update_meta(request, tub_name):
         # Transform the input param. Input param should not be a string. It should be a dict. Let's fix this later
 
         update_parms = dict([i.split(':') for i in data])
-        TubService.update_meta(tub_name, update_parms)
+        tub_service.update_meta(tub_name, update_parms)
         return Response({"success": True})
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
