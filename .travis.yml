@@ -8,3 +8,5 @@ language: python # => 1
       - python manage.py migrate
     script: # => 7
       - pytest -v dkconsole/data/test_service.py
+      - pytest -v dkconsole/test_factory_service.py
+      - pytest -v dkconsole/vehicle/test_vehicle_service.py

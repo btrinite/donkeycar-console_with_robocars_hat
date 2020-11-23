@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import environ
 from pathlib import Path
+from dkconsole.service_factory import factory
 
 # logging.basicConfig(format='%(asctime)s %(module)s %(name)s %(levelname)s: %(message)s', level=logging.DEBUG)
 
@@ -177,7 +178,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-MODE = env.str('mode', None) 
+MODE = env.str('mode', None)
 CARAPP_PATH = env.str("CARAPP_PATH")
 DONKEYCAR_DIR = env.str("DONKEYCAR_DIR")
 DATA_DIR = CARAPP_PATH + "/data"
@@ -189,3 +190,9 @@ VENV_PATH = env.str("VENV_PATH")
 WLAN = env.str("WLAN")
 HOTSPOT_IF_NAME = env.str("HOTSPOT_IF_NAME")
 HQ_BASE_URL = env.str("HQ_BASE_URL")
+
+# from dkconsole.data.services import TubService
+# from dkconsole.vehicle.services import Vehicle
+
+# factory.register('tub_service', TubService)
+# factory.register('vehicle_service', Vehicle)
