@@ -2,7 +2,7 @@ import pytest
 import subprocess
 import netifaces
 import re
-# from .services import Vehicle
+
 from .vehicle_service import VehicleService
 from django.conf import settings
 

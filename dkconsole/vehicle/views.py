@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseServerError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .services import Vehicle
+from dkconsole.service_factory import factory
 
 from django.conf import settings
 from rest_framework import status
@@ -11,6 +11,7 @@ import time
 import logging
 
 logger = logging.getLogger(__name__)
+vehicle_service = factory.create('vehicle_service')
 
 # Create your views here.
 def index(request):
@@ -25,7 +26,7 @@ def start_driving(request):
     use_joystick = request.data.get('use_joystick', False)
     tub_meta = request.data.get('tub_meta', None)
 
-    Vehicle.start_driving(use_joystick, tub_meta)
+    vehicle_service.start_driving(use_joystick, tub_meta)
     return Response({"status": True})
 
 
@@ -34,47 +35,47 @@ def start_autopilot(request):
     model_path = request.data['model_path']
     use_joystick = request.data['use_joystick']
 
-    pid = Vehicle.start_autopilot(use_joystick, model_path)
+    pid = vehicle_service.start_autopilot(use_joystick, model_path)
 
     return Response({"status": True})
 
 
 @api_view(['POST'])
 def stop_driving(request):
-    Vehicle.stop_driving()
+    vehicle_service.stop_driving()
     return Response({"status": True})
 
 
 @api_view(['GET'])
 def status(request):
-    hostname = Vehicle.get_hostname()
-    carapp_path = Vehicle.carapp_path
+    hostname = vehicle_service.get_hostname()
+    carapp_path = vehicle_service.carapp_path
 
     return Response({"hostname": hostname,
                      "carapp_path": carapp_path,
-                     "wlan_ip_address": Vehicle.get_wlan_ip_address(),
-                     "wlan_mac_address": Vehicle.get_wlan_mac_address(),
-                     "is_wlan_connected": Vehicle.is_wlan_connected(),
-                     "is_hotspot_on": Vehicle.is_hotspot_on(),
-                     "hotspot_ip_address": Vehicle.get_hotspot_ip_address(),
-                     "isFirstTime": Vehicle.first_time(),
-                     "current_ssid": Vehicle.get_current_ssid(),
-                     "battery_level": Vehicle.battery_level_in_percentage(),
-                     "web_controller_port": Vehicle.get_web_controller_port()
+                     "wlan_ip_address": vehicle_service.get_wlan_ip_address(),
+                     "wlan_mac_address": vehicle_service.get_wlan_mac_address(),
+                     "is_wlan_connected": vehicle_service.is_wlan_connected(),
+                     "is_hotspot_on": vehicle_service.is_hotspot_on(),
+                     "hotspot_ip_address": vehicle_service.get_hotspot_ip_address(),
+                     "isFirstTime": vehicle_service.first_time(),
+                     "current_ssid": vehicle_service.get_current_ssid(),
+                     "battery_level": vehicle_service.battery_level_in_percentage(),
+                     "web_controller_port": vehicle_service.get_web_controller_port()
                      })
 
 
 @api_view(['POST'])
 def update_console_software(request):
     try:
-        return Response({"Output": Vehicle.update_console_software(), "status": True})
+        return Response({"Output": vehicle_service.update_console_software(), "status": True})
     except:
         return HttpResponseServerError()
 
 @api_view(['POST'])
 def update_donkey_software(request):
     try:
-        return Response({"Output": Vehicle.update_donkey_software(), "status": True})
+        return Response({"Output": vehicle_service.update_donkey_software(), "status": True})
     except:
         return HttpResponseServerError()
 
@@ -84,7 +85,7 @@ def add_network(request):
     ssid = request.data['ssid']
     password = request.data['password']
     try:
-        return Response({"status": Vehicle.add_network(ssid, password)})
+        return Response({"status": vehicle_service.add_network(ssid, password)})
     except:
         return Response({"status": "fail"})
 
@@ -92,7 +93,7 @@ def add_network(request):
 @api_view(['POST'])
 def reset_network(request):
     try:
-        Vehicle.remove_all_network()
+        vehicle_service.remove_all_network()
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})
@@ -102,8 +103,8 @@ def reset_network(request):
 def set_hostname(request):
     hostname = request.data['hostname']
     try:
-        Vehicle.set_hostname(hostname)
-        Vehicle.reboot()
+        vehicle_service.set_hostname(hostname)
+        vehicle_service.reboot()
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})
@@ -120,10 +121,10 @@ def finish_first_time(request):
     logger.debug(f"{request.data}")
 
     try:
-        Vehicle.first_time_finish(hostname, ssid, psk, controller, country_code)
+        vehicle_service.first_time_finish(hostname, ssid, psk, controller, country_code)
         logger.info("finished first time setup")
-        if Vehicle.reboot_required:
-            Vehicle.reboot()
+        if vehicle_service.reboot_required:
+            vehicle_service.reboot()
             logger.info("sending response - reboot true")
             return Response({"reboot": True})
         else:
@@ -139,7 +140,7 @@ def finish_first_time(request):
 @api_view(['POST'])
 def scan_network(request):
     try:
-        return Response({"ssid": Vehicle.scan_network()})
+        return Response({"ssid": vehicle_service.scan_network()})
     except Exception as e:
         print(e)
         return Response({"status": "fail"})
@@ -150,7 +151,7 @@ def change_password(request):
     current = request.data['current']
     password = request.data['password']
     try:
-        Vehicle.changePasswd(current, password)
+        vehicle_service.changePasswd(current, password)
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})
@@ -160,7 +161,7 @@ def change_password(request):
 def update_config(request):
     try:
         config_data = request.data
-        Vehicle.update_config(config_data)
+        vehicle_service.update_config(config_data)
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})
@@ -169,7 +170,7 @@ def update_config(request):
 def update_env(request):
     try:
         config_data = request.data
-        Vehicle.update_env(config_data)
+        vehicle_service.update_env(config_data)
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})
@@ -179,7 +180,7 @@ def update_env(request):
 def sync_time(request):
     try:
         currentTime = request.data['current']
-        Vehicle.sync_time(currentTime)
+        vehicle_service.sync_time(currentTime)
         return Response({"status": "success"})
     except:
         return Response({"status": "fail"})
@@ -187,13 +188,13 @@ def sync_time(request):
 
 @api_view(['GET'])
 def config(request):
-    data = Vehicle.config()
+    data = vehicle_service.config()
     return Response(data)
 
 @api_view(['POST'])
 def start_calibrate(request):
     try:
-        Vehicle.start_calibrate()
+        vehicle_service.start_calibrate()
         return Response()
     except Exception as e:
         print(e)
@@ -203,7 +204,7 @@ def start_calibrate(request):
 @api_view(['POST'])
 def stop_calibrate(request):
     try:
-        Vehicle.stop_calibrate()
+        vehicle_service.stop_calibrate()
         return Response()
     except Exception as e:
         print(e)
@@ -213,19 +214,19 @@ def stop_calibrate(request):
 @api_view(['POST'])
 def reset_config(request):
     try:
-        Vehicle.reset_config()
+        vehicle_service.reset_config()
         return Response({"status": "success"})
     except Exception as e:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def power_off(request):
-    Vehicle.power_off()
+    vehicle_service.power_off()
 
 @api_view(['POST'])
 def factory_reset(request):
     try:
-        Vehicle.factory_reset()
+        vehicle_service.factory_reset()
         return Response({"status": "success"})
     except Exception as e:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

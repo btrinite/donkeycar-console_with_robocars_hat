@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'dkconsole.data',
     'dkconsole.train',
+    'dkconsole.apps.MyAppConfig'
 
 ]
 
@@ -190,9 +191,3 @@ VENV_PATH = env.str("VENV_PATH")
 WLAN = env.str("WLAN")
 HOTSPOT_IF_NAME = env.str("HOTSPOT_IF_NAME")
 HQ_BASE_URL = env.str("HQ_BASE_URL")
-
-# from dkconsole.data.services import TubService
-# from dkconsole.vehicle.services import Vehicle
-
-# factory.register('tub_service', TubService)
-# factory.register('vehicle_service', Vehicle)

@@ -59,4 +59,5 @@ class TestFactoryService(TestCase):
         svc: SomeInterfaceClass = factory.create('vehicle')
 
         assert svc.return_100() == 101      # Calling a method as defined in interface, overriding interface method to return 102
-        assert svc.some_method_that_does_not_exist() == 42        # throw error, no such method
+
+

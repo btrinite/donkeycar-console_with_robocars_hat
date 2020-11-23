@@ -7,7 +7,7 @@ from dkconsole.data.services import TubService
 from datetime import datetime, timedelta
 from django.utils import timezone
 
-from dkconsole.vehicle.services import Vehicle
+from dkconsole.service_factory import factory
 
 import boto3
 import base64
@@ -29,6 +29,8 @@ class TrainService():
     MOVIE_DIR = settings.MOVIE_DIR
     REFRESH_JOB_STATUS_URL = f'{settings.HQ_BASE_URL}/train/refresh_job_statuses'
     SUBMIT_JOB_URL = f'{settings.HQ_BASE_URL}/train/submit_job'
+
+    vehicle_service = factory.create('vehicle_service')
 
     @classmethod
     def get_jobs(cls):
@@ -57,7 +59,7 @@ class TrainService():
 
         mp_encoder = MultipartEncoder(
             fields={
-                'device_id': Vehicle.get_wlan_mac_address(),
+                'device_id': vehicle_service.get_wlan_mac_address(),
                 'tub_archive_file': ('file.tar.gz', open(filename, 'rb'), 'application/gzip'),
             }
         )
