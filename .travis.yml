@@ -4,6 +4,11 @@ python: # => 3
   - "3.7"
 install: # => 5
   - pip install -r requirements/local.txt
+  - cd ..
+  - git clone https://github.com/autorope/donkeycar
+  - cd donkeycar
+  - pip install -e .[pc]
+  - cd ../donkeycar-console
 before_script: # => 6
   - python manage.py migrate
 script: # => 7
