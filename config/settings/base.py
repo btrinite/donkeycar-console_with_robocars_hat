@@ -10,8 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import donkeycar
 import os
 import environ
+import logging
+
+from packaging import version
 from pathlib import Path
 from dkconsole.service_factory import factory
 
@@ -27,8 +31,9 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "%(asctime)s %(name)s "
-            "%(process)d %(thread)d %(levelname)s: %(message)s"
+            "format": "%(asctime)s  %(name)s line %(lineno)d  "
+            "%(levelname)s: %(message)s",
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         }
     },
     "handlers": {
@@ -55,16 +60,24 @@ env = environ.Env()
 
 ROOT_DIR = Path(__file__).parents[2]
 
+donkeycar_version = version.parse(donkeycar.__version__)
+
 if (env.str('mode', None) == 'docker'):
     print("loading form .env_docker")
     env.read_env(str(ROOT_DIR / ".env_docker"))
 else:
     if os.uname()[4] == 'armv7l':
         print("loading form .env_pi4")
+
         env.read_env(str(ROOT_DIR / ".env_pi4"))
     else:
-        print("loading form .env_pc")
-        env.read_env(str(ROOT_DIR / ".env_pc"))
+        if (donkeycar_version.major == 3):
+            env.read_env(str(ROOT_DIR / ".env_pc_v3"))
+        elif (donkeycar_version.major == 4):
+            env.read_env(str(ROOT_DIR / ".env_pc_v4"))
+        else:
+            raise Exception("unknown donkey car version")
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -181,8 +194,9 @@ REST_FRAMEWORK = {
 
 MODE = env.str('mode', None)
 CARAPP_PATH = env.str("CARAPP_PATH")
+
 DONKEYCAR_DIR = env.str("DONKEYCAR_DIR")
-DATA_DIR = CARAPP_PATH + "/data"
+DATA_DIR = Path(CARAPP_PATH) / "data"
 MOVIE_DIR = CARAPP_PATH + "/movies"
 MODEL_DIR = CARAPP_PATH + "/models"
 CONSOLE_DIR = env.str("CONSOLE_DIR")
@@ -191,3 +205,7 @@ VENV_PATH = env.str("VENV_PATH")
 WLAN = env.str("WLAN")
 HOTSPOT_IF_NAME = env.str("HOTSPOT_IF_NAME")
 HQ_BASE_URL = env.str("HQ_BASE_URL")
+logger = logging.getLogger(__name__)
+
+logger.debug(f"DONKEYCAR_DIR = {DONKEYCAR_DIR}")
+logger.debug(f"DATA_DIR = {DATA_DIR}")

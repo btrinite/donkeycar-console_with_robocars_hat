@@ -2,9 +2,16 @@ from django.apps import AppConfig
 from .service_factory import factory
 from packaging import version
 import donkeycar
+import logging
+from dkconsole.vehicle.vehicle_service import VehicleService
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
 
 class MyAppConfig(AppConfig):
-    name='dkconsole'
+
+    name = 'dkconsole'
 
     def ready(self):
         '''
@@ -14,21 +21,18 @@ class MyAppConfig(AppConfig):
         for jetson nano, we inject a vehicle service compatible with Jetson Nano
         '''
 
-        donkeycar_version = version.parse(donkeycar.__version__)
+        donkeycar_major_version = VehicleService.get_donkeycar_major_version()
 
-        if (donkeycar_version.major == 3):
-            print("3")
-        elif (donkeycar_version.major == 4):
-            print("4")
+        if (donkeycar_major_version == 3):
+            from dkconsole.data.services import TubService
+            factory.register('tub_service', TubService)
+        elif (donkeycar_major_version == 4):
+            from dkconsole.data.data_service_v2 import TubServiceV2
+            factory.register('tub_service', TubServiceV2)
         else:
             raise Exception("Donkey car version not supported")
 
         from dkconsole.vehicle.pi_vehicle_service import PiVehicle
         factory.register('vehicle_service', PiVehicle)
 
-
-        from dkconsole.data.services import TubService
-        factory.register('tub_service', TubService)
-
-
-
+        logger.info(f"CARAPP_PATH = {settings.CARAPP_PATH}")

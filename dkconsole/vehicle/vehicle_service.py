@@ -9,10 +9,11 @@ import subprocess
 import time
 from pathlib import Path
 
-import abc
-
 import netifaces
 import logging
+import donkeycar
+from packaging import version
+
 from django.conf import settings
 
 from dkconsole.model.services import MLModelService
@@ -47,6 +48,18 @@ class VehicleService():
     web_controller_port = 8887
 
     @classmethod
+    def get_donkeycar_version(cls):
+        donkeycar_version = version.parse(donkeycar.__version__)
+        logger.debug(f"donkeycar_version = {donkeycar_version}")
+
+        return donkeycar_version
+
+    @classmethod
+    def get_donkeycar_major_version(cls):
+        donkeycar_version = cls.get_donkeycar_version()
+        return donkeycar_version.major
+
+    @classmethod
     def build_calibrate_command(cls):
         command = [f"{cls.venv_path}/python", f"{cls.carapp_path}/calibrate.py", "drive"]
 
@@ -58,18 +71,19 @@ class VehicleService():
     def build_drive_command(cls, use_joystick, model_path, tub_meta=None):
         command = [f"{cls.venv_path}/python", f"{cls.carapp_path}/manage.py", "drive"]
 
+        if (cls.get_donkeycar_major_version() == 3):
+            if tub_meta is not None:
+                for i in tub_meta:
+                    command.append(f"--meta={i}")
+                    # ["x:y", "s:z"] => --meta=x:y --meta=s:z
+
         if use_joystick:
             command.append("--js")
 
         if model_path:
             command.append(f"--model={model_path}")
 
-        if tub_meta is not None:
-            for i in tub_meta:
-                command.append(f"--meta={i}")
-                # ["x:y", "s:z"] => --meta=x:y --meta=s:z
-
-        print(" ".join(command))
+        logger.debug(" ".join(command))
 
         return command
 
@@ -115,8 +129,6 @@ class VehicleService():
         else:
             with open(cls.carapp_path + "/drive.log", 'w') as log:
                 cls.proc = subprocess.Popen(command, stdout=log)
-
-        print(f"cls.proc = {cls.proc}")
 
         return cls.proc.pid
 
@@ -490,6 +502,7 @@ class VehicleService():
 
     @classmethod
     def sync_time(cls, currentTime):
+        logger.debug("sync time")
         result = subprocess.check_output(f"sudo date -s '{currentTime}'", shell=True)
         return result
 
@@ -511,6 +524,7 @@ class VehicleService():
 
     @classmethod
     def update_env(cls, config_data):
+        logger.debug("update_env")
         path = settings.CONSOLE_DIR + "/.env_pi4"
         cls.edit_env(path, config_data)
         subprocess.check_output(['sudo', 'service', 'gunicorn', 'restart'])
@@ -671,9 +685,8 @@ class VehicleService():
     @classmethod
     def get_web_controller_port(cls):
         try:
-            import donkeycar as dk
             config_path = f"{cls.carapp_path}/config.py"
-            cfg = dk.load_config(config_path=config_path)
+            cfg = donkeycar.load_config(config_path=config_path)
             cls.web_controller_port = cfg.WEB_CONTROL_PORT
         except:
             pass

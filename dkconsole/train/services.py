@@ -20,6 +20,11 @@ import json
 from rest_framework import status
 import logging
 
+# DI
+from dkconsole.service_factory import factory
+from dkconsole.vehicle.vehicle_service import VehicleService
+vehicle_service: VehicleService = factory.create('vehicle_service')
+
 logger = logging.getLogger(__name__)
 
 
@@ -63,6 +68,7 @@ class TrainService():
             fields={
                 'device_id': cls.vehicle_service.get_wlan_mac_address(),
                 'tub_archive_file': ('file.tar.gz', open(filename, 'rb'), 'application/gzip'),
+                'donkeycar_version': str(vehicle_service.get_donkeycar_version())
             }
         )
 

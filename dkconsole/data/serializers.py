@@ -16,6 +16,8 @@ class TubSerializer(serializers.Serializer):
     thumbnail = TubImageSerializer()
     size = serializers.FloatField()
     rating = serializers.FloatField()
+    previews = serializers.ListField(
+        child=serializers.CharField())
 
 
 class MetaSerializer(serializers.Serializer):

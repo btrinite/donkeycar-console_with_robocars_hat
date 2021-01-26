@@ -64,17 +64,22 @@ def jpg(request, tub_name, filename):
     http://localhost:8000/data/tub_9_20-01-10/1_cam-image_array_.jpg
     '''
     try:
-        image_file_path = Path(settings.DATA_DIR) / tub_name / filename
 
+        image_path = tub_service.get_image_path(tub_name, filename)
+        print(image_path)
+
+        # image_file_path = Path(settings.DATA_DIR) / tub_name / filename
+#
         # 192.168.0.76
 
-        return FileResponse(open(image_file_path, 'rb'))
+        return FileResponse(open(image_path, 'rb'))
 
         # with open(image_file_path, "rb") as f:
         #     return HttpResponse(f.read(), content_type="image/jpeg")
     except IOError:
         # with open(get_no_image_path(), "rb") as f:
         #     return HttpResponse(f.read(), content_type="image/png")
+        print(f"jpg!!! {tub_name} {filename}")
 
         return FileResponse(open(get_no_image_path(), 'rb'))
 
@@ -104,7 +109,7 @@ def stream_video(request, tub_name):
 
 @api_view(['GET'])
 def detail(requst, tub_name):
-    tub = tub_service.get_detail(tub_name)
+    tub = tub_service.get_tub_by_name(tub_name)
     serializer = TubSerializer(tub)
     return Response(serializer.data)
 

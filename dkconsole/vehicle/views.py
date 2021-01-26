@@ -9,9 +9,11 @@ from django.conf import settings
 from rest_framework import status
 import time
 import logging
+from .vehicle_service import VehicleService
 
 logger = logging.getLogger(__name__)
-vehicle_service = factory.create('vehicle_service')
+vehicle_service: VehicleService = factory.create('vehicle_service')
+
 
 # Create your views here.
 def index(request):
@@ -61,7 +63,8 @@ def status(request):
                      "isFirstTime": vehicle_service.first_time(),
                      "current_ssid": vehicle_service.get_current_ssid(),
                      "battery_level": vehicle_service.battery_level_in_percentage(),
-                     "web_controller_port": vehicle_service.get_web_controller_port()
+                     "web_controller_port": vehicle_service.get_web_controller_port(),
+                     "donkeycar_version": str(vehicle_service.get_donkeycar_version())
                      })
 
 

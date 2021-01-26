@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class Tub():
-    def __init__(self, name, path, created_at, no_of_images, thumbnail, size, rating):
+    def __init__(self, name, path, created_at, no_of_images, thumbnail, size, rating, previews):
         '''
         name - str
         path - POSIXPATH
@@ -18,6 +18,7 @@ class Tub():
         self.thumbnail = thumbnail
         self.size = size
         self.rating = rating
+        self.previews = previews
 
 
 class TubImage():

@@ -14,13 +14,25 @@ from PIL import Image
 import subprocess
 import re
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
+
 class TubService():
+
     @classmethod
     def data_dir(cls):
         return settings.DATA_DIR
+
+    @classmethod
+    def get_tub_path_by_name(cls, tub_name):
+        tub_path = Path(cls.data_dir()) / tub_name
+        return tub_path
+
+    @classmethod
+    def get_image_path(cls, tub_name, image_name):
+        return cls.get_tub_path_by_name(tub_name) / image_name
 
     @classmethod
     def get_meta_json_path(cls, tub_path):
@@ -30,7 +42,7 @@ class TubService():
         return tub_path / 'meta.json'
 
     @classmethod
-    def get_tub_method(cls, tub_path):
+    def get_tub(cls, tub_path):
         logger.debug(tub_path)
         if not (type(tub_path) is Path):
             tub_path = Path(tub_path)
@@ -57,6 +69,16 @@ class TubService():
             no_of_images = cls.get_jpg_file_count_on_disk(tub_path)
             cls.update_meta(tub_path.name, {"no_of_images": no_of_images})
 
+        jpgs = []
+        for f in os.listdir(tub_path):
+            if f.endswith('.jpg'):
+                jpgs.append(f)
+
+        if (len(jpgs) > 0):
+            previews = random.sample(jpgs, 5)
+        else:
+            previews = []
+
         if 'rating' in meta:
             rating = meta['rating']
         else:
@@ -64,7 +86,7 @@ class TubService():
 
         tub_image = TubImage(first_jpg_name, width, height)
 
-        return Tub(tub_path.name, tub_path, created_at, no_of_images, tub_image, size, rating)
+        return Tub(tub_path.name, tub_path, created_at, no_of_images, tub_image, size, rating, previews)
 
     @classmethod
     def get_size(cls, tub_path):
@@ -81,7 +103,7 @@ class TubService():
         for child in Path(cls.data_dir()).iterdir():
             if child.is_dir():
                 try:
-                    tub = cls.get_tub_method(child)
+                    tub = cls.get_tub(child)
                     tubs.append(tub)
                 except Exception as e:
                     print(e)
@@ -179,14 +201,14 @@ class TubService():
 
     @classmethod
     def get_detail(cls, tub_name):
-        tub_path = Path(cls.data_dir()) / tub_name
-        tub = None
+        raise Exception("get_detail no longer supported. Use get_tub_by_name")
 
-        if tub_path.is_dir():
-            tub = cls.get_tub_method(tub_path)
-        else:
-            return None
-        return tub
+
+    @ classmethod
+    def get_tub_by_name(cls, tub_name):
+        tub_path = Path(cls.data_dir()) / tub_name
+
+        return cls.get_tub(tub_path)
 
     @classmethod
     def get_latest(cls):
@@ -195,7 +217,7 @@ class TubService():
             if os.path.isdir(tub):
                 all_file.append(tub)
         latest = max(all_file, key=os.path.getmtime)
-        tub = cls.get_detail(os.path.basename(latest))
+        tub = cls.get_tub_by_name(os.path.basename(latest))
         return tub
 
     @classmethod

@@ -1,0 +1,271 @@
+import os
+from pathlib import Path
+
+from django.conf import settings
+from dkconsole.data.models import Meta, Tub, TubImage
+
+from donkeycar.parts.datastore_v2 import Manifest
+from donkeycar.parts.tub_v2 import Tub as DKTubV2
+
+from datetime import datetime
+from django.utils.timezone import make_aware
+import tarfile
+import tempfile
+import shutil
+import json
+import errno
+from PIL import Image
+import subprocess
+import re
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class TubServiceV2():
+    '''
+    This tub service works with the new datastore v2 on donkeycar
+    '''
+
+    @classmethod
+    def data_dir(cls):
+        return settings.DATA_DIR
+
+    @classmethod
+    def get_tub_path_by_name(cls, tub_name):
+        tub_path = Path(cls.data_dir()) / tub_name
+        return tub_path
+
+    @classmethod
+    def get_image_path(cls, tub_name, image_name):
+        return cls.get_tub_path_by_name(tub_name) / "images" / image_name
+
+    @classmethod
+    def get_tub(cls, tub_path):
+        print("hahaha")
+        if not (type(tub_path) is Path):
+            tub_path = Path(tub_path)
+
+        # manifest = Manifest(tub_path)
+
+        tub = DKTubV2(tub_path)
+
+        # meta_json_path = cls.get_meta_json_path(tub_path)
+
+        first_jpg_name = cls.get_thumbnail_name(tub)
+        width, height = cls.get_image_resolution(tub)
+
+        # with open(meta_json_path) as f:
+        #     meta = json.load(f)
+
+        # meta = manifest.
+
+        created_at = make_aware(datetime.fromtimestamp(tub.manifest.manifest_metadata['created_at']))
+
+        # if 'size' in meta:
+        #     size = meta['size']
+        # else:
+        #     size = cls.get_size(tub_path)
+        #     cls.update_meta(tub_path.name, {"size": size})
+
+        # TODO: fix this file size by fstat
+        size = 0
+
+        # if 'no_of_images' in meta:
+        # if False:
+        #     no_of_images = meta['no_of_images']
+        # else:
+        #     no_of_images = cls.get_jpg_file_count_on_disk(tub_path)
+        #     cls.update_meta(tub_path.name, {"no_of_images": no_of_images})
+
+        no_of_images = len(tub)
+
+
+        previews = []
+        it = iter(tub)
+        for i in range(5):
+            previews.append(next(it)['cam/image_array'])
+
+
+        if 'rating' in tub.manifest.metadata:
+            rating = tub.manifest.metadata['rating']
+        else:
+            rating = 0
+
+        # if 'rating' in meta:
+        #     rating = meta['rating']
+        # else:
+        #     rating = 0
+
+        tub_image = TubImage(first_jpg_name, width, height)
+
+        return Tub(tub_path.name, tub_path, created_at, no_of_images, tub_image, size, rating, previews)
+
+    @classmethod
+    def get_size(cls, tub_path):
+        total_size = 0.0
+        for filename in Path(tub_path).iterdir():
+            total_size += os.path.getsize(filename)
+        total_size = total_size / 1024 / 1024
+        return round(total_size, 2)
+
+    @classmethod
+    def get_tubs(cls):
+        tubs = []
+
+        for child in Path(cls.data_dir()).iterdir():
+            if child.is_dir():
+                try:
+                    tub = cls.get_tub(child)
+                    tubs.append(tub)
+                except Exception as e:
+                    print(e)
+
+        tubs.sort(key=lambda x: x.created_at, reverse=True)
+
+        return tubs
+
+    @classmethod
+    def get_jpg_file_count_on_disk(cls, tub_path):
+        logger.debug(f"get_jpg_file_count_on_disk {tub_path}")
+        return len([f for f in os.listdir(tub_path) if f.endswith('.jpg')])
+
+    @classmethod
+    def generate_tub_archive(cls, tub_paths):
+        print("generating tub archive")
+        f = tempfile.NamedTemporaryFile(mode='w+b', suffix='.tar.gz', delete=False)
+
+        with tarfile.open(fileobj=f, mode='w:gz') as tar:
+            for tub_path in tub_paths:
+                p = Path(tub_path)
+                tar.add(p, arcname=p.name)
+            tar.add(f"{settings.CARAPP_PATH}/myconfig.py", arcname="myconfig.py")
+
+        f.close()
+
+        return f.name
+
+    @classmethod
+    def delete_tub(cls, tub_path):
+        if os.path.exists(tub_path):
+            shutil.rmtree(tub_path)
+        else:
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), tub_path)
+
+    @classmethod
+    def get_thumbnail_name(cls, tub: DKTubV2):
+        if len(tub) == 0:
+            return None
+        else:
+            return next(iter(tub))['cam/image_array']
+
+    @classmethod
+    def get_image_resolution(cls, tub: DKTubV2):
+        if (cls.get_thumbnail_name(tub) is not None):
+
+            image = Image.open(Path(tub.images_base_path) / cls.get_thumbnail_name(tub))
+            return image.size
+        else:
+            width = 0
+            heigh = 0
+            return width, heigh
+
+    @ classmethod
+    def delete_tubs(cls, min_image=0):
+        tubs = cls.get_tubs()
+        for tub in cls.get_tubs():
+            if tub.no_of_images <= min_image:
+                shutil.rmtree(tub.path)
+
+    @ classmethod
+    def gen_movie(cls, tub_name):
+        tub_path = Path(settings.DATA_DIR) / tub_name
+
+        # Create movie directory if not exists
+        if (not os.path.exists(settings.MOVIE_DIR)):
+            os.mkdir(settings.MOVIE_DIR)
+
+        videoPath = Path(settings.MOVIE_DIR) / f"{tub_name}.mp4"
+        if (not os.path.exists(videoPath)):
+            command = [f'{settings.VENV_PATH}/donkey', 'makemovie', f'--tub={tub_path}', f'--out={videoPath}']
+            print(" ".join(command))
+            subprocess.check_output(command, cwd=settings.CARAPP_PATH)
+            return videoPath
+        return videoPath
+
+    @ classmethod
+    def gen_histogram(cls, tub_path):
+        print("bing bing")
+        tub = DKTubV2(tub_path)
+
+        if len(tub) == 0:
+            raise Exception("empty tub")
+
+        histogram_name = os.path.basename(tub_path) + "_hist.png"
+        histogram_path = tub_path / histogram_name
+
+        if (not os.path.exists(histogram_path)):
+            command = [f'{settings.VENV_PATH}/donkey', 'tubhist', f'--tub={tub_path}', f'--out={histogram_path}']
+            logger.debug(f"command  = {''.join(command)}")
+
+            subprocess.check_output(command, cwd=settings.CARAPP_PATH)
+
+            return histogram_path
+        return histogram_path
+
+    @ classmethod
+    def get_tub_by_name(cls, tub_name):
+        tub_path = Path(cls.data_dir()) / tub_name
+
+        return cls.get_tub(tub_path)
+        # if tub_path.is_dir():
+        #     tub = cls.get_tub(tub_path)
+        # else:
+        #     return None
+        # return tub
+
+    @ classmethod
+    def get_latest(cls):
+        all_file = []
+        for tub in Path(cls.data_dir()).iterdir():
+            if os.path.isdir(tub):
+                all_file.append(tub)
+        latest = max(all_file, key=os.path.getmtime)
+        tub = cls.get_tub(latest)
+        return tub
+
+    @ classmethod
+    def get_meta(cls, tub_name):
+        tub_path = Path(cls.data_dir()) / tub_name
+        # meta_json_path = cls.get_meta_json_path(tub_path)
+        tub = DKTubV2(tub_path)
+
+        no_of_images = len(tub)
+        location_lat = tub.manifest.metadata.get('lat')
+        location_lon = tub.manifest.metadata.get('lon')
+        remark = tub.manifest.metadata.get('remark')
+        rating = tub.manifest.metadata.get('rating')
+
+        return Meta(no_of_images, location_lat, location_lon, remark, rating)
+
+    @ classmethod
+    def update_meta(cls, tub_name, update_parms):
+        update = {}
+        tub_path = Path(cls.data_dir()) / tub_name
+        tub = DKTubV2(tub_path)
+
+        tub.manifest.update_metadata(update_parms)
+
+        return tub.manifest.metadata
+
+        # meta_json_path = cls.get_meta_json_path(tub_path)
+        # with open(meta_json_path) as f:
+        #     meta = json.load(f)
+        #     update = meta.copy()
+        #     update = {**meta, **update_parms}   # Merge the dict
+
+        # output = open(meta_json_path, "w+")
+        # json.dump(update, output)
+        # output.close
+
+        # return update
