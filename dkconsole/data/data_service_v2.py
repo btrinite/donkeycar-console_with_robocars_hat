@@ -42,15 +42,10 @@ class TubServiceV2():
 
     @classmethod
     def get_tub(cls, tub_path):
-        print("hahaha")
         if not (type(tub_path) is Path):
             tub_path = Path(tub_path)
 
-        # manifest = Manifest(tub_path)
-
         tub = DKTubV2(tub_path)
-
-        # meta_json_path = cls.get_meta_json_path(tub_path)
 
         first_jpg_name = cls.get_thumbnail_name(tub)
         width, height = cls.get_image_resolution(tub)
@@ -71,31 +66,21 @@ class TubServiceV2():
         # TODO: fix this file size by fstat
         size = 0
 
-        # if 'no_of_images' in meta:
-        # if False:
-        #     no_of_images = meta['no_of_images']
-        # else:
-        #     no_of_images = cls.get_jpg_file_count_on_disk(tub_path)
-        #     cls.update_meta(tub_path.name, {"no_of_images": no_of_images})
-
         no_of_images = len(tub)
 
 
         previews = []
-        it = iter(tub)
-        for i in range(5):
-            previews.append(next(it)['cam/image_array'])
+
+        if no_of_images > 0:
+            it = iter(tub)
+            for i in range(5):
+                previews.append(next(it)['cam/image_array'])
 
 
         if 'rating' in tub.manifest.metadata:
             rating = tub.manifest.metadata['rating']
         else:
             rating = 0
-
-        # if 'rating' in meta:
-        #     rating = meta['rating']
-        # else:
-        #     rating = 0
 
         tub_image = TubImage(first_jpg_name, width, height)
 
