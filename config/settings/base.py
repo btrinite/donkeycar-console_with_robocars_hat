@@ -69,7 +69,10 @@ else:
     if os.uname()[4] == 'armv7l':
         print("loading form .env_pi4")
 
-        env.read_env(str(ROOT_DIR / ".env_pi4"))
+        if (donkeycar_version.major == 3):
+            env.read_env(str(ROOT_DIR / ".env_pi_v3"))
+        else:
+            env.read_env(str(ROOT_DIR / ".env_pi_v4"))
     else:
         if (donkeycar_version.major == 3):
             env.read_env(str(ROOT_DIR / ".env_pc_v3"))
