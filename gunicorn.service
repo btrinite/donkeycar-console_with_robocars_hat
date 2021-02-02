@@ -12,9 +12,9 @@ WorkingDirectory = /opt/donkeycar-console
 ExecStartPre = /bin/mkdir /run/dkconsole
 ExecStartPre = /bin/chown -R pi:pi /run/dkconsole
 ExecStartPre = -/usr/bin/git pull
-ExecStartPre = /home/pi/env_dc/bin/python manage.py migrate
+ExecStartPre = /home/pi/env/bin/python manage.py migrate
 
-ExecStart = /home/pi/env_dc/bin/gunicorn dkconsole.wsgi -b 0.0.0.0:8000 --pid /run/dkconsole/dkconsole.pid -c gunicorn.config.py
+ExecStart = /home/pi/env/bin/gunicorn dkconsole.wsgi -b 0.0.0.0:8000 --pid /run/dkconsole/dkconsole.pid -c gunicorn.config.py
 ExecReload = /bin/kill -s HUP $MAINPID
 ExecStop = /bin/kill -s TERM $MAINPID
 ExecStopPost = /bin/rm -rf /run/dkconsole
