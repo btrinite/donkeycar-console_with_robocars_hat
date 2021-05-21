@@ -21,21 +21,26 @@ class TestTrainIntegration(TestCase):
         self.tub_paths = [str(self.data_dir / "tub_18_19-04-06"),
                           str(self.data_dir / "tub_6_20-03-31")]
 
-    @pytest.mark.slow
-    def test_submit_job(self):
-        client = Client()
-        data = dict()
-        data["tub_paths"] = [str(self.data_dir / "tub_18_19-04-06")]
+    # @pytest.mark.slow
+    # def test_submit_job(self):
+    #     client = Client()
+    #     data = dict()
+    #     data["tub_paths"] = [str(self.data_dir / "tub_18_19-04-06")]
 
-        response = client.post(
-            reverse('train:submit_job'),
-            data=json.dumps(data),
-            content_type='application/json'
-        )
+    #     response = client.post(
+    #         reverse('train:submit_job'),
+    #         data=json.dumps(data),
+    #         content_type='application/json'
+    #     )
 
-        assert response.status_code == status.HTTP_200_OK
+    #     assert response.status_code == status.HTTP_200_OK
 
         # mock_method.assert_called_with(data["tub_paths"])
+
+    @pytest.mark.slow
+    def test_submit_job(self):
+        TrainService.submit_job(self.tub_paths)
+
 
     @pytest.mark.slow
     def test_upload_job_to_s3(self):
