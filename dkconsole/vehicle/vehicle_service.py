@@ -257,8 +257,13 @@ class VehicleService():
 
     @classmethod
     def update_console_software(cls):
-        output = subprocess.Popen(['sleep 2 ; sudo service gunicorn restart'], shell=True)
-        return output.decode('utf-8')
+        try:
+            # gunicorn service runs git pull upon restart
+            output = subprocess.Popen(['sleep 2 ; sudo service gunicorn restart'], shell=True, stdout=subprocess.PIPE)
+            stdout = output.communicate()[0].decode('utf-8')
+        except Exception as e:
+            print(e)
+        return stdout
 
     @classmethod
     def set_wpa_country(cls, country_code):
