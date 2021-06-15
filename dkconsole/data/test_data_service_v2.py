@@ -51,6 +51,7 @@ class TestDataService(TestCase):
     def test_get_tub(self):
         tub = self.tub_service.get_tub(self.tub_path)
         assert tub.name == "tub_2_20-11-24"
+        assert tub.size == 1.04
 
     def test_get_tubs(self):
         tubs = self.tub_service.get_tubs()
@@ -104,7 +105,7 @@ class TestDataService(TestCase):
 
         with patch('donkeycar.parts.datastore_v2.Manifest.update_metadata') as mock_method:
             self.tub_service.update_meta(self.tub_name, update_meta)
-            assert mock_method.call_count == 1
+            assert mock_method.call_count == 0
 
     def tearDown(self):
         shutil.rmtree(self.temp_path)
