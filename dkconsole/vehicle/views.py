@@ -227,6 +227,10 @@ def power_off(request):
     vehicle_service.power_off()
 
 @api_view(['POST'])
+def reboot(request):
+    vehicle_service.reboot()
+
+@api_view(['POST'])
 def factory_reset(request):
     try:
         vehicle_service.factory_reset()
