@@ -539,7 +539,8 @@ class VehicleService():
         data = {
             "Basic": {
                 "DRIVE_LOOP_HZ": {"dtype": "int", "default": 20},
-                "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0}
+                "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0},
+                "WEB_CHECK_CAR_INERT" : {"dtype" : "bool", "default":True}
             },
             "Controller": {
                 "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
@@ -652,6 +653,10 @@ class VehicleService():
     @classmethod
     def power_off(cls):
         subprocess.check_output(['sudo', 'shutdown', '-h', 'now'])
+
+    @classmethod
+    def reboot(cls):
+        subprocess.check_output(['sudo', 'reboot', '-h', 'now'])
 
     @classmethod
     def factory_reset(cls):
