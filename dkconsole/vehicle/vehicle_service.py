@@ -560,7 +560,7 @@ class VehicleService():
                 "ROI_CROP_BOTTOM": {"dtype": "int", "default": 0},
                 "DEFAULT_MODEL_TYPE": {
                     "dtype": "mc",
-                    "choices": ['linear', 'categorical', 'rnn', 'imu', 'behavior', '3d', 'localizer', 'latent']
+                    "choices": ['linear', 'categorical', 'rnn', 'imu', 'behavior', '3d', 'localizer', 'latent','tflite_linear']
                 },
                 "BATCH_SIZE": {"dtype": "int", "default": 128}
             }
