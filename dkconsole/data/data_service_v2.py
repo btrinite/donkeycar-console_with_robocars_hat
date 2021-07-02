@@ -39,6 +39,19 @@ class TubServiceV2():
     @classmethod
     def get_image_path(cls, tub_name, image_name):
         return cls.get_tub_path_by_name(tub_name) / "images" / image_name
+    
+    @classmethod
+    def get_meta_json_path(cls, tub_path):
+        '''
+        tub_path is a POSIXPATH
+        '''
+        path = tub_path / 'meta.json'
+        logger.debug(f"get_meta_json_path path: {path}")
+        # print(path)
+        if not Path(path).exists():
+            with open(path, "w") as f:
+                json.dump({"last_update": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}, f)
+        return path
 
     @classmethod
     def get_tub(cls, tub_path):
@@ -47,24 +60,24 @@ class TubServiceV2():
 
         tub = DKTubV2(tub_path)
 
+        meta_json_path = cls.get_meta_json_path(tub_path)
         first_jpg_name = cls.get_thumbnail_name(tub)
         width, height = cls.get_image_resolution(tub)
 
-        # with open(meta_json_path) as f:
-        #     meta = json.load(f)
-
-        # meta = manifest.
-
         created_at = make_aware(datetime.fromtimestamp(tub.manifest.manifest_metadata['created_at']))
 
-        # if 'size' in meta:
-        #     size = meta['size']
-        # else:
-        #     size = cls.get_size(tub_path)
-        #     cls.update_meta(tub_path.name, {"size": size})
+        with open(meta_json_path) as f:
+            meta = json.load(f)
+            print(meta)
 
+        if 'size' in meta.keys():
+            size = meta['size']
+            print("have 'size'")
+        else:
+            size = cls.get_size(tub_path)
+            cls.update_meta(tub_path.name, {"size": size})
+            print("dont have 'size'")
         # TODO: fix this file size by fstat
-        size = 0
 
         no_of_images = len(tub)
 
@@ -88,9 +101,15 @@ class TubServiceV2():
 
     @classmethod
     def get_size(cls, tub_path):
-        total_size = 0.0
-        for filename in Path(tub_path).iterdir():
-            total_size += os.path.getsize(filename)
+        #initialize the size
+        total_size = 0
+        #use the walk() method to navigate through directory tree
+        for dirpath, dirnames, filenames in os.walk(tub_path):
+            for i in filenames:
+                #use join to concatenate all the components of path
+                f = os.path.join(dirpath, i)
+                #use getsize to generate size in bytes and add it to the total size
+                total_size += os.path.getsize(f)
         total_size = total_size / 1024 / 1024
         return round(total_size, 2)
 
@@ -235,22 +254,19 @@ class TubServiceV2():
 
     @ classmethod
     def update_meta(cls, tub_name, update_parms):
-        update = {}
+        # tub_path = Path(cls.data_dir()) / tub_name
+        # logger.debug(f"update_meta() tub_path:{tub_path}")
+        # tub = DKTubV2(tub_path)
+        # tub.manifest.update_metadata(update_parms)
+        # return tub.manifest.metadata
+
         tub_path = Path(cls.data_dir()) / tub_name
-        tub = DKTubV2(tub_path)
-
-        tub.manifest.update_metadata(update_parms)
-
-        return tub.manifest.metadata
-
-        # meta_json_path = cls.get_meta_json_path(tub_path)
-        # with open(meta_json_path) as f:
-        #     meta = json.load(f)
-        #     update = meta.copy()
-        #     update = {**meta, **update_parms}   # Merge the dict
-
-        # output = open(meta_json_path, "w+")
-        # json.dump(update, output)
-        # output.close
-
-        # return update
+        meta_json_path = cls.get_meta_json_path(tub_path)
+        with open(meta_json_path, "r+") as jsonfile:
+            meta = json.load(jsonfile)
+            update = {**meta, **update_parms}   # Merge the dict
+            meta["last_update"] = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            jsonfile.seek(0)
+            json.dump(update, jsonfile)
+            jsonfile.truncate()
+        return update

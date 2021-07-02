@@ -49,12 +49,22 @@ conda create -n dconsole python=3.7
 conda activate dconsole
 pip install -r requirements/production.txt
 ```
+#### Install donkeycar
+```
+git clone git@github.com:robocarstore/donkeycar.git
+cd donkeycar
+pip install -e .[pc]
+cd ../
+```
 
 #### Checkout
 
 This project use git LFS to manage testing data. If you don't want to download the testing data(which is kind of big), you can skip them by doing
 
-`GIT_LFS_SKIP_SMUDGE=1 git clone git@github.com:sctse999/donkeycar-console.git`
+`GIT_LFS_SKIP_SMUDGE=1 git clone git@github.com:robocarstore/donkeycar-console.git`
+
+#### Modify .env file(s)
+Modify .env_pc_v4 and .env_pc_v3 files if neccessary
 
 #### Run server
 

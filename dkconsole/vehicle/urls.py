@@ -26,6 +26,7 @@ urlpatterns = [
     path('stop_calibrate', views.stop_calibrate, name='stop_calibrate'),
     path('reset_config', views.reset_config, name='reset_config'),
     path('power_off', views.power_off, name='power_off'),
+    path('reboot', views.reboot, name='reboot'),
     path('factory_reset', views.factory_reset, name='factory_reset'),
 
 ]

@@ -257,8 +257,13 @@ class VehicleService():
 
     @classmethod
     def update_console_software(cls):
-        output = subprocess.Popen(['sleep 2 ; sudo service gunicorn restart'], shell=True)
-        return output.decode('utf-8')
+        try:
+            # gunicorn service runs git pull upon restart
+            output = subprocess.Popen(['sleep 2 ; sudo service gunicorn restart'], shell=True, stdout=subprocess.PIPE)
+            stdout = output.communicate()[0].decode('utf-8')
+        except Exception as e:
+            print(e)
+        return stdout
 
     @classmethod
     def set_wpa_country(cls, country_code):
@@ -534,7 +539,8 @@ class VehicleService():
         data = {
             "Basic": {
                 "DRIVE_LOOP_HZ": {"dtype": "int", "default": 20},
-                "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0}
+                "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0},
+                "WEB_CHECK_CAR_INERT" : {"dtype" : "bool", "default":True}
             },
             "Controller": {
                 "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
@@ -647,6 +653,10 @@ class VehicleService():
     @classmethod
     def power_off(cls):
         subprocess.check_output(['sudo', 'shutdown', '-h', 'now'])
+
+    @classmethod
+    def reboot(cls):
+        subprocess.check_output(['sudo', 'reboot', '-h', 'now'])
 
     @classmethod
     def factory_reset(cls):

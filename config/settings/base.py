@@ -18,6 +18,7 @@ import logging
 from packaging import version
 from pathlib import Path
 from dkconsole.service_factory import factory
+# import platform # for windows only
 
 # logging.basicConfig(format='%(asctime)s %(module)s %(name)s %(levelname)s: %(message)s', level=logging.DEBUG)
 
@@ -67,6 +68,7 @@ if (env.str('mode', None) == 'docker'):
     env.read_env(str(ROOT_DIR / ".env_docker"))
 else:
     if os.uname()[4] == 'armv7l':
+    # if platform.uname() == 'armv7l': # for windows only
         print("loading form .env_pi4")
 
         if (donkeycar_version.major == 3):
