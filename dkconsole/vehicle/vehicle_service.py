@@ -540,7 +540,6 @@ class VehicleService():
             "Basic": {
                 "DRIVE_LOOP_HZ": {"dtype": "int", "default": 20},
                 "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0},
-                "WEB_CHECK_CAR_INERT" : {"dtype" : "bool", "default":True}
             },
             "Controller": {
                 "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
