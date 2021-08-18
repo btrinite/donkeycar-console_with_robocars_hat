@@ -1,28 +1,20 @@
+import json
+import logging
 import os
+import subprocess
+import uuid
 from pathlib import Path
 
-from django.conf import settings
-from .models import Job, JobStatus
-from dkconsole.data.services import TubService
-from datetime import datetime, timedelta
-from django.utils import timezone
-
-from dkconsole.service_factory import factory
-
-import boto3
-import base64
-import pytz
-import uuid
 import requests
-import subprocess
+from django.conf import settings
 from requests_toolbelt.multipart.encoder import MultipartEncoder
-import json
 from rest_framework import status
-import logging
 
 # DI
 from dkconsole.service_factory import factory
 from dkconsole.vehicle.vehicle_service import VehicleService
+from .models import Job, JobStatus
+
 vehicle_service: VehicleService = factory.create('vehicle_service')
 
 logger = logging.getLogger(__name__)
@@ -37,7 +29,6 @@ class TrainService():
 
     vehicle_service = factory.create('vehicle_service')
     tub_service = factory.create('tub_service')
-
 
     @classmethod
     def get_jobs(cls):
@@ -59,6 +50,13 @@ class TrainService():
         return job
 
     @classmethod
+    def get_tub_uuid(cls, tub_path):
+        meta_json_path = cls.tub_service.get_meta_json_path(Path(tub_path))
+        with open(meta_json_path) as f:
+            meta = json.load(f)
+        return meta['uuid']
+
+    @classmethod
     def submit_job(cls, tub_paths):
         job = cls.create_job(tub_paths)
 
@@ -67,7 +65,7 @@ class TrainService():
         mp_encoder = MultipartEncoder(
             fields={
                 'device_id': cls.vehicle_service.get_wlan_mac_address(),
-                'hostname' : cls.vehicle_service.get_hostname(),
+                'hostname': cls.vehicle_service.get_hostname(),
                 'tub_archive_file': ('file.tar.gz', open(filename, 'rb'), 'application/gzip'),
                 'donkeycar_version': str(vehicle_service.get_donkeycar_version())
             }
@@ -81,8 +79,8 @@ class TrainService():
             headers={'Content-Type': mp_encoder.content_type}
         )
 
-        if (r.status_code == status.HTTP_200_OK):
-            if ("job_uuid" in r.json()):
+        if r.status_code == status.HTTP_200_OK:
+            if "job_uuid" in r.json():
                 try:
                     print(r.json()['job_uuid'])
                     uuid.UUID(r.json()['job_uuid'], version=4)
@@ -96,7 +94,46 @@ class TrainService():
         else:
             raise Exception("Failed to call submit job")
 
+    @classmethod
+    def submit_job_v2(cls, tub_paths):
+        job = cls.create_job(tub_paths)
+        tub_uuids = list(map(cls.get_tub_uuid, tub_paths))
+        filename = f"{settings.CARAPP_PATH}/myconfig.py"
 
+        try:
+            data = [
+                ('myconfig_file', ('myconfig.py', open(filename, 'rb'), 'text/plain')),
+                ('device_id', cls.vehicle_service.get_wlan_mac_address()),
+                ('hostname', cls.vehicle_service.get_hostname()),
+                ('donkeycar_version', str(vehicle_service.get_donkeycar_version())),
+            ]
+            for _ in tub_uuids:
+                data.append(('tub_uuids', _))
+
+            mp_encoder = MultipartEncoder(
+                fields=data
+            )
+
+            logger.debug("Posting job to HQ")
+            r = requests.post(
+                cls.SUBMIT_JOB_URL,
+                data=mp_encoder,  # The MultipartEncoder is posted as data, don't use files=...!
+                # The MultipartEncoder provides the content-type header with the boundary:
+                headers={'Content-Type': mp_encoder.content_type}
+            )
+
+            if r.status_code == status.HTTP_200_OK:
+                if "job_uuid" in r.json():
+                    uuid.UUID(r.json()['job_uuid'], version=4)
+                    job.uuid = r.json()['job_uuid']
+                    job.save()
+                else:
+                    raise Exception("Failed to call submit job")
+            else:
+                raise Exception("Failed to call submit job")
+        except Exception as e:
+            logger.error(e)
+            raise Exception("Failed to call submit job")
 
     # @classmethod
     # def refresh_all_job_status(cls):
@@ -132,11 +169,10 @@ class TrainService():
             finally:
                 cls.refresh_lock = False
 
-
     @classmethod
     def download_model(cls, job):
         print(type(cls.MODEL_DIR))
-        cls.download_file(job.model_url,  f"{cls.MODEL_DIR}/job_{job.id}.h5")
+        cls.download_file(job.model_url, f"{cls.MODEL_DIR}/job_{job.id}.h5")
         cls.download_file(job.model_accuracy_url, f"{cls.MODEL_DIR}/job_{job.id}.png")
         # cls.download_file(job.model_myconfig_url, f"{cls.MODEL_DIR}/job_{job.id}.myconfig.py")
 

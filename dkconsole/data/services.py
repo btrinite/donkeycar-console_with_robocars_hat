@@ -1,25 +1,25 @@
+import errno
+import json
+import logging
 import os
-from pathlib import Path
-
-from django.conf import settings
-from dkconsole.data.models import Meta, Tub, TubImage
-from datetime import datetime
-from django.utils.timezone import make_aware
+import random
+import shutil
+import subprocess
 import tarfile
 import tempfile
-import shutil
-import json
-import errno
+from datetime import datetime
+from pathlib import Path
+
 from PIL import Image
-import subprocess
-import re
-import logging
-import random
+from django.conf import settings
+from django.utils.timezone import make_aware
+
+from dkconsole.data.models import Meta, Tub, TubImage
 
 logger = logging.getLogger(__name__)
 
 
-class TubService():
+class TubService:
 
     @classmethod
     def data_dir(cls):
@@ -36,9 +36,9 @@ class TubService():
 
     @classmethod
     def get_meta_json_path(cls, tub_path):
-        '''
+        """
         tub_path is a POSIXPATH
-        '''
+        """
         return tub_path / 'meta.json'
 
     @classmethod
@@ -74,7 +74,7 @@ class TubService():
             if f.endswith('.jpg'):
                 jpgs.append(f)
 
-        if (len(jpgs) > 0):
+        if len(jpgs) > 0:
             previews = random.sample(jpgs, 5)
         else:
             previews = []
@@ -150,14 +150,14 @@ class TubService():
 
         jpgs = sorted(jpgs, key=lambda d: int(d.split('_')[0]))
 
-        if (len(jpgs) != 0):
+        if len(jpgs) != 0:
             return jpgs[0]
         else:
             return None
 
     @classmethod
     def get_image_resolution(cls, tub_path):
-        if (cls.get_thumbnail_name(tub_path) is not None):
+        if cls.get_thumbnail_name(tub_path) is not None:
             image = Image.open(Path(tub_path / cls.get_thumbnail_name(tub_path)))
             return image.size
         else:
@@ -176,11 +176,11 @@ class TubService():
         tub_path = Path(settings.DATA_DIR) / tub_name
 
         # Create movie directory if not exists
-        if (not os.path.exists(settings.MOVIE_DIR)):
+        if not os.path.exists(settings.MOVIE_DIR):
             os.mkdir(settings.MOVIE_DIR)
 
         videoPath = Path(settings.MOVIE_DIR) / f"{tub_name}.mp4"
-        if (not os.path.exists(videoPath)):
+        if not os.path.exists(videoPath):
             command = [f'{settings.VENV_PATH}/donkey', 'makemovie', f'--tub={tub_path}', f'--out={videoPath}']
             subprocess.check_output(command, cwd=settings.CARAPP_PATH)
             return videoPath
@@ -193,7 +193,7 @@ class TubService():
 
         histogram_name = os.path.basename(tub_path) + "_hist.png"
         histogram_path = tub_path / histogram_name
-        if (not os.path.exists(histogram_path)):
+        if not os.path.exists(histogram_path):
             command = [f'{settings.VENV_PATH}/donkey', 'tubhist', f'--tub={tub_path}', f'--out={histogram_path}']
             subprocess.check_output(command, cwd=settings.CARAPP_PATH)
             return histogram_path
@@ -203,8 +203,7 @@ class TubService():
     def get_detail(cls, tub_name):
         raise Exception("get_detail no longer supported. Use get_tub_by_name")
 
-
-    @ classmethod
+    @classmethod
     def get_tub_by_name(cls, tub_name):
         tub_path = Path(cls.data_dir()) / tub_name
 
@@ -257,10 +256,10 @@ class TubService():
         with open(meta_json_path) as f:
             meta = json.load(f)
             update = meta.copy()
-            update = {**meta, **update_parms}   # Merge the dict
+            update = {**meta, **update_parms}  # Merge the dict
 
         output = open(meta_json_path, "w+")
         json.dump(update, output)
-        output.close
+        output.close()
 
         return update

@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from .models import Tub
 
 
 class TubImageSerializer(serializers.Serializer):
@@ -18,6 +17,7 @@ class TubSerializer(serializers.Serializer):
     rating = serializers.FloatField()
     previews = serializers.ListField(
         child=serializers.CharField())
+    uuid = serializers.CharField(max_length=1024, required=False)
 
 
 class MetaSerializer(serializers.Serializer):
@@ -26,3 +26,12 @@ class MetaSerializer(serializers.Serializer):
     lon = serializers.FloatField()
     remark = serializers.CharField()
     rating = serializers.FloatField()
+
+
+class UploadTubSerializer(serializers.Serializer):
+    """
+    used by upload_tubs endpoint
+    """
+    # tub_paths = serializers.CharField(required=True, max_length=1000)
+    tub_names = serializers.ListField(
+        child=serializers.CharField(required=True, max_length=100), allow_empty=False)

@@ -1,20 +1,14 @@
-from django.shortcuts import render
-from dkconsole.data.models import Tub
-from rest_framework.response import Response
-from django.http import HttpResponse, JsonResponse, Http404, FileResponse
-
-from .services import TubService
-from .serializers import TubSerializer, TubImageSerializer, MetaSerializer
-from rest_framework.decorators import api_view
-import os
 from pathlib import Path
-from django.conf import settings
-from PIL import Image
 
-import os
+from django.conf import settings
+from django.http import HttpResponse, Http404, FileResponse
 from rest_framework import status
-from dkconsole.util import *
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from dkconsole.service_factory import factory
+from dkconsole.util import *
+from .serializers import TubSerializer, MetaSerializer, UploadTubSerializer
 
 # Create your views here.
 
@@ -60,9 +54,9 @@ def delete(request):
 
 @api_view(['GET'])
 def jpg(request, tub_name, filename):
-    '''
+    """
     http://localhost:8000/data/tub_9_20-01-10/1_cam-image_array_.jpg
-    '''
+    """
     try:
 
         image_path = tub_service.get_image_path(tub_name, filename)
@@ -125,9 +119,9 @@ def latest(requst):
 
 @api_view(['GET'])
 def histogram(requst, tub_name):
-    '''
+    """
     http://localhost:8000/data/tub_9_20-01-10/tub_9_20-01-10_hist.png
-    '''
+    """
     try:
         tub_service.gen_histogram(Path(settings.DATA_DIR) / tub_name)
         histogram_name = tub_name + "_hist.png"
@@ -139,9 +133,9 @@ def histogram(requst, tub_name):
 
 @api_view(['GET'])
 def latest_histogram(requst):
-    '''
+    """
     http://localhost:8000/data/tub_9_20-01-10/tub_9_20-01-10_hist.png
-    '''
+    """
     try:
         latest = tub_service.get_latest()
         tub_service.gen_histogram(Path(settings.DATA_DIR) / latest.name)
@@ -161,16 +155,39 @@ def show_meta(request, tub_name):
 
 @api_view(['POST'])
 def update_meta(request, tub_name):
-    '''
+    """
     {"update_parms":["123: 123"]}
-    '''
+    """
     data = request.data["update_parms"]
 
-    if (data):
+    if data:
         # Transform the input param. Input param should not be a string. It should be a dict. Let's fix this later
 
         update_parms = dict([i.split(':') for i in data])
         tub_service.update_meta(tub_name, update_parms)
         return Response({"success": True})
     else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def upload_tubs(request):
+    """
+    endpoint for mobile app
+    """
+    try:
+        print(request.data)
+        serializer = UploadTubSerializer(data=request.data)
+        if serializer.is_valid():
+            # tub_names = request.data['tub_names']
+            fail, success = tub_service.upload_to_hq(request.data)
+
+            if len(fail) > 0:
+                return Response({'fail': fail, 'success': success}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response({'fail': fail, 'success': success}, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)

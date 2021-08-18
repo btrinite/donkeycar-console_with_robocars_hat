@@ -5,6 +5,7 @@ from . import views
 app_name = 'data'
 urlpatterns = [
     path('', views.index, name='index'),
+    path('upload_tub', views.upload_tubs, name='upload_tub'),
     path('<str:tub_name>/tub_archive.tar.gz', views.tub_archive, name='tub_archive'),
     path('delete', views.delete, name='delete'),
     path('latest', views.latest, name='latest'),

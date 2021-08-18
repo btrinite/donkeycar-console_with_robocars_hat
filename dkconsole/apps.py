@@ -20,6 +20,8 @@ class MyAppConfig(AppConfig):
         e.g. for v3 donkey car, we inject the data v3 service
         for jetson nano, we inject a vehicle service compatible with Jetson Nano
         '''
+        from dkconsole.vehicle.pi_vehicle_service import PiVehicle
+        factory.register('vehicle_service', PiVehicle)
 
         donkeycar_major_version = VehicleService.get_donkeycar_major_version()
 
@@ -31,8 +33,5 @@ class MyAppConfig(AppConfig):
             factory.register('tub_service', TubServiceV2)
         else:
             raise Exception("Donkey car version not supported")
-
-        from dkconsole.vehicle.pi_vehicle_service import PiVehicle
-        factory.register('vehicle_service', PiVehicle)
 
         logger.info(f"CARAPP_PATH = {settings.CARAPP_PATH}")

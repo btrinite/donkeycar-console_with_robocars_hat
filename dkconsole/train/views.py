@@ -1,16 +1,17 @@
-from pathlib import Path
+import logging
 
-from django.conf import settings
-from django.shortcuts import render
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .serializers import JobSerializer
-from .services import TrainService
-from .serializers import SubmitJobSerializer
-from rest_framework import status
-from dkconsole.train.models import Job, JobStatus
+from dkconsole.train.models import Job
 from dkconsole.util import *
+from .serializers import JobSerializer
+from .serializers import SubmitJobSerializer
+from .services import TrainService
+
+logger = logging.getLogger(__name__)
+
 
 # Create your views here.
 
@@ -22,6 +23,7 @@ def index(request):
     serializer = JobSerializer(jobs, many=True)
     return Response(serializer.data)
 
+
 @api_view(['POST'])
 def submit_job(request):
     try:
@@ -31,14 +33,21 @@ def submit_job(request):
         if serializer.is_valid():
             tub_paths = request.data['tub_paths']
 
-            TrainService.submit_job(tub_paths)
+            try:
+                if not request.data['v2']:
+                    TrainService.submit_job(tub_paths)
+                else:
+                    TrainService.submit_job_v2(tub_paths)
+            except KeyError:
+                TrainService.submit_job(tub_paths)
 
             return Response({"success": True})
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def refresh_job_status(request):
@@ -57,6 +66,7 @@ def download_model(request):
     job = Job.objects.get(pk=job_id)
     TrainService.download_model(job)
     return Response({"success": False})
+
 
 @api_view(['POST'])
 def delete_jobs(request):

@@ -8,6 +8,9 @@ import io
 import tarfile
 import re
 from unittest.mock import patch, ANY
+from django.core import serializers
+
+
 # from .views import *
 
 # Create your tests here.
@@ -85,7 +88,7 @@ class TestDataView(TestCase):
         client = Client()
 
         response = client.get(
-            reverse('data:jpg',  kwargs={'tub_name': 'tub_18_19-04-06', 'filename': '1_cam-image_array_.jpg'})
+            reverse('data:jpg', kwargs={'tub_name': 'tub_18_19-04-06', 'filename': '1_cam-image_array_.jpg'})
         )
 
         assert response.status_code, status.HTTP_200_OK
@@ -95,7 +98,7 @@ class TestDataView(TestCase):
     def test_jpg_not_exist(self):
         client = Client()
         response = client.get(
-            reverse('data:jpg',  kwargs={'tub_name': 'tub_18_19-04-06', 'filename': '0_cam-image_array_.jpg'})
+            reverse('data:jpg', kwargs={'tub_name': 'tub_18_19-04-06', 'filename': '0_cam-image_array_.jpg'})
         )
 
         assert response.status_code, status.HTTP_200_OK
@@ -167,3 +170,19 @@ class TestDataView(TestCase):
         assert response.status_code, status.HTTP_200_OK
         assert response.data['success'] is True
 
+    def test_upload(self):
+        # with patch('dkconsole.data.data_service_v2.TubServiceV2.upload') as mock_method:
+        # mock_method.return_value = {'done': True, 'successful': ['tub_26_21-07-02', 'tub_27_21-07-02']}
+        client = Client()
+        data = dict()
+        data["tub_names"] = ['tub_26_21-07-02', 'tub_27_21-07-02']
+
+        # r.return_value.status_code = 200
+        response = client.post(
+            reverse('data:upload_tub'),
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+        print(response.data)
+        assert response.status_code, status.HTTP_200_OK
+        assert response.data['done'] is True

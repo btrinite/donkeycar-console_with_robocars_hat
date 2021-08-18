@@ -24,7 +24,7 @@ class TestDataService(TestCase):
 
     def setUp(self):
         self.data_dir = settings.DATA_DIR
-        self.tub_name = "tub_2_20-11-24"
+        self.tub_name = "tub_26_21-07-02"
         self.tub_path = self.data_dir / self.tub_name
 
         self.tub = Tub(self.tub_path)
@@ -50,12 +50,12 @@ class TestDataService(TestCase):
 
     def test_get_tub(self):
         tub = self.tub_service.get_tub(self.tub_path)
-        assert tub.name == "tub_2_20-11-24"
-        assert tub.size == 1.04
+        assert tub.name == "tub_26_21-07-02"
+        print(tub.uuid)
 
     def test_get_tubs(self):
         tubs = self.tub_service.get_tubs()
-        assert len(tubs) == 2
+        assert len(tubs) == 4
 
     def test_delete_tub(self):
 

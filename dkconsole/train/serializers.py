@@ -1,11 +1,11 @@
-from rest_framework import serializers
-from .models import Job, JobStatus
-from .services import TrainService
 from django.conf import settings
-import os
+from rest_framework import serializers
+
+from .models import Job
+from .services import TrainService
+
 
 class JobSerializer(serializers.ModelSerializer):
-
     name = serializers.SerializerMethodField()
     train_duration = serializers.SerializerMethodField()
     model_path = serializers.SerializerMethodField()
@@ -29,7 +29,7 @@ class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
 
-        fields = ['id', 'name', 'uuid', 'tub_paths', 'status',  'created_at',
+        fields = ['id', 'name', 'uuid', 'tub_paths', 'status', 'created_at',
                   'model_url', 'model_accuracy_url', 'model_path', 'model_movie_path', 'train_duration']
 
         ordering = ['-created']
