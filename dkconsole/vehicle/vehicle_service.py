@@ -542,7 +542,7 @@ class VehicleService():
                 "AI_THROTTLE_MULT": {"value": 1.0, "dtype": "int", "default": 1.0},
             },
             "Controller": {
-                "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1']},
+                "DRIVE_TRAIN_TYPE": {"dtype": "mc", "choices": ['SERVO_ESC', 'MM1', 'ROBOCARSHAT']},
                 "STEERING_LEFT_PWM": {"dtype": "int", "default": 460},
                 "STEERING_RIGHT_PWM": {"dtype": "int", "default": 290},
                 "THROTTLE_FORWARD_PWM": {"dtype": "int", "default": 500},
